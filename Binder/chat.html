@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>צ'אט - פלטפורמת עזרה הדדית</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container chat-container">
+        <div class="chat-header">
+            <h1>שיחה עם דנה כהן</h1>
+            <a href="match.html" class="button secondary">חזרה</a>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message received">
+                <div class="message-content">
+                    שלום! שמחה להכיר אותך. אני יכולה לעזור לך עם תכנות JavaScript.
+                </div>
+            </div>
+            <div class="message sent">
+                <div class="message-content">
+                    היי! תודה רבה. אני ממש מתעניין בתכנות JavaScript.
+                </div>
+            </div>
+            <div class="message received">
+                <div class="message-content">
+                    מעולה! איזה נושא ספציפי מעניין אותך?
+                </div>
+            </div>
+            <div class="message sent">
+                <div class="message-content">
+                    אני מתחיל ללמוד על async/await. יש לך ניסיון עם זה?
+                </div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <form id="chatForm" onsubmit="return sendMessage(event)">
+                <input type="text" id="messageInput" placeholder="הקלד/י הודעה..." required>
+                <button type="submit" class="button primary">שלח</button>
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
