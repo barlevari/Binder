@@ -90,9 +90,14 @@ export function formatDate(dateStr) {
   return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-// ── Avatar URL ───────────────────────────────────────────────
+// ── Avatar URL (initials-based SVG) ─────────────────────────
 export function avatarUrl(seed, size = 80) {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed || 'default')}&size=${size}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+  const colors = ['E8685A','D4A853','6B8F71','5B7DB1','9B6B9E','C47A5A','5A9E8F','7B68AE'];
+  const hash = String(seed || 'default').split('').reduce((a, c) => ((a << 5) - a) + c.charCodeAt(0), 0);
+  const bg = colors[Math.abs(hash) % colors.length];
+  const letter = String(seed || '?').charAt(0).toUpperCase();
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" rx="${size/2}" fill="%23${bg}"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="sans-serif" font-size="${size*0.4}" font-weight="600">${letter}</text></svg>`;
+  return `data:image/svg+xml,${svg}`;
 }
 
 // ── Input validation ─────────────────────────────────────────
