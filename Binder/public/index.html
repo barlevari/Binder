@@ -150,11 +150,12 @@
 
     /* Features */
     .land-features{
-      display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      display:grid;grid-template-columns:repeat(2,1fr);
       gap:1px;max-width:960px;margin:64px auto 0;
       background:rgba(255,255,255,0.04);border-radius:20px;overflow:hidden;
       border:1px solid rgba(255,255,255,0.06);
     }
+    @media(max-width:600px){.land-features{grid-template-columns:1fr}}
     .land-feature{
       padding:40px 32px;background:var(--bg-base);
       transition:background 0.4s var(--ease);
@@ -263,18 +264,18 @@
   <div class="land-steps">
     <div class="land-step reveal delay-1" data-tilt>
       <div class="land-step-num">01</div>
-      <h3>פתח פרופיל</h3>
-      <p>מה אתה יודע, מה אתה צריך. דקה-שתיים.</p>
+      <h3>מלא פרופיל</h3>
+      <p>מה אתה יודע, מה אתה צריך.</p>
     </div>
     <div class="land-step reveal delay-2" data-tilt>
       <div class="land-step-num">02</div>
-      <h3>מצא אנשים</h3>
-      <p>גרור ימינה למי שמתאים לך.</p>
+      <h3>מצא התאמות</h3>
+      <p>אנשים עם ידע שמתאים לך.</p>
     </div>
     <div class="land-step reveal delay-3" data-tilt>
       <div class="land-step-num">03</div>
-      <h3>דברו</h3>
-      <p>יש התאמה הדדית? תתחילו.</p>
+      <h3>התחבר</h3>
+      <p>התאמה הדדית? התחברו.</p>
     </div>
   </div>
 </section>
@@ -289,24 +290,24 @@
   </div>
   <div class="land-features reveal">
     <div class="land-feature">
-      <div class="land-feature-icon">🧠</div>
-      <h3>אנשים, לא סרטונים</h3>
-      <p>שיחה ישירה עם מישהו שעשה את זה</p>
+      <div class="land-feature-icon">🔗</div>
+      <h3>התאמה על בסיס ידע</h3>
+      <p>אתה יודע מה שמישהו צריך. מישהו יודע מה שאתה צריך.</p>
     </div>
     <div class="land-feature">
       <div class="land-feature-icon">🤝</div>
-      <h3>חינם, בלי קאץ׳</h3>
-      <p>אין מנויים. אין עמלות. עזרה הדדית.</p>
+      <h3>חינם</h3>
+      <p>בלי תשלום. בלי מנויים. עזרה הדדית.</p>
     </div>
     <div class="land-feature">
       <div class="land-feature-icon">⚡</div>
-      <h3>בלי סיבוכים</h3>
-      <p>פרופיל, גלילה, צ׳אט. זהו.</p>
+      <h3>פשוט</h3>
+      <p>פרופיל, התאמות, חיבור. זהו.</p>
     </div>
     <div class="land-feature">
       <div class="land-feature-icon">🔒</div>
       <h3>פרטי</h3>
-      <p>מדברים רק עם מי שאישרת. המידע שלך לא נמכר.</p>
+      <p>רק מי שהתאמת לו רואה אותך.</p>
     </div>
   </div>
 </section>
