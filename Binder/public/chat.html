@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>צ'אט | בינדר</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="chat-page">
+
+<!-- HEADER -->
+<div class="chat-header" id="chatHeader">
+  <a href="/matches.html" class="btn btn-ghost btn-icon" title="חזרה">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+  </a>
+  <div class="avatar avatar-md" id="partnerAvatar">
+    <div style="background:var(--primary-light);width:100%;height:100%;border-radius:50%;"></div>
+  </div>
+  <div class="chat-header-info">
+    <div class="chat-header-name" id="partnerName">טוען...</div>
+    <div class="chat-header-status">
+      <div class="online-dot"></div>
+      <span>פעיל/ה</span>
+    </div>
+  </div>
+  <a id="profileLink" href="#" class="btn btn-ghost btn-sm" style="font-size:.8rem;">פרופיל</a>
+</div>
+
+<!-- MESSAGES -->
+<div class="chat-messages-wrap" id="messagesWrap">
+  <div class="page-loading" id="loadingState">
+    <div class="spinner spinner-dark"></div>
+  </div>
+</div>
+
+<!-- INPUT -->
+<div class="chat-input-wrap">
+  <form class="chat-input-form" id="chatForm" onsubmit="return false;">
+    <textarea
+      class="chat-input"
+      id="msgInput"
+      placeholder="הקלד הודעה..."
+      rows="1"
+      maxlength="2000"
+      autocomplete="off"
+    ></textarea>
+    <button class="chat-send-btn" id="sendBtn" type="submit" disabled>
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { supabase }                    from '/js/config.js';
+  import { toast, esc, avatarUrl, formatFullTime, formatDate, requireOnboarding } from '/js/utils.js';
+
+  const session = await requireOnboarding(supabase);
+  if (!session) return;
+
+  const ME      = session.user.id;
+  const matchId = new URLSearchParams(location.search).get('match');
+
+  if (!matchId) { window.location.href = '/matches.html'; return; }
+
+  let partner = null;
+  let lastDateSep = null;
+  let subscription = null;
+
+  const wrap    = document.getElementById('messagesWrap');
+  const input   = document.getElementById('msgInput');
+  const sendBtn = document.getElementById('sendBtn');
+
+  // ── Load match & partner ───────────────────────────────────
+  async function init() {
+    // Verify this match belongs to ME
+    const { data: match, error: matchErr } = await supabase
+      .from('binder_matches')
+      .select('id, user1_id, user2_id')
+      .eq('id', matchId)
+      .or(`user1_id.eq.${ME},user2_id.eq.${ME}`)
+      .single();
+
+    if (matchErr || !match) {
+      toast('התאמה לא נמצאה', 'error');
+      setTimeout(() => { window.location.href = '/matches.html'; }, 1500);
+      return;
+    }
+
+    const partnerId = match.user1_id === ME ? match.user2_id : match.user1_id;
+
+    const { data: p } = await supabase
+      .from('binder_profiles')
+      .select('id, full_name, avatar_url, location')
+      .eq('id', partnerId)
+      .single();
+
+    partner = p;
+    document.getElementById('partnerName').textContent    = p?.full_name || 'משתמש';
+    document.getElementById('profileLink').href           = `/profile.html?id=${partnerId}`;
+    const avatarEl = document.getElementById('partnerAvatar');
+    avatarEl.innerHTML = `<img src="${esc(p?.avatar_url || avatarUrl(partnerId))}" alt="${esc(p?.full_name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+
+    document.title = `${p?.full_name || 'צ\'אט'} | בינדר`;
+
+    await loadMessages();
+    subscribeToMessages();
+  }
+
+  // ── Load messages ──────────────────────────────────────────
+  async function loadMessages() {
+    const { data: msgs, error } = await supabase
+      .from('binder_messages')
+      .select('id, sender_id, content, created_at, read_at')
+      .eq('match_id', matchId)
+      .order('created_at', { ascending: true });
+
+    document.getElementById('loadingState').remove();
+
+    if (error) { toast('שגיאה בטעינת הודעות', 'error'); return; }
+
+    lastDateSep = null;
+    (msgs || []).forEach(msg => appendMessage(msg, false));
+    scrollToBottom();
+  }
+
+  // ── Append single message ──────────────────────────────────
+  function appendMessage(msg, scrollDown = true) {
+    const dateStr = formatDate(msg.created_at);
+
+    if (dateStr !== lastDateSep) {
+      lastDateSep = dateStr;
+      const sep = document.createElement('div');
+      sep.className = 'date-sep';
+      sep.innerHTML = `<span>${esc(dateStr)}</span>`;
+      wrap.appendChild(sep);
+    }
+
+    const isMe = msg.sender_id === ME;
+    const div  = document.createElement('div');
+    div.className = `msg ${isMe ? 'msg-out' : 'msg-in'}`;
+    div.dataset.msgId = msg.id;
+
+    div.innerHTML = `
+      <div class="msg-bubble">${esc(msg.content).replace(/\n/g, '<br>')}</div>
+      <div class="msg-time">${formatFullTime(msg.created_at)}${isMe && msg.read_at ? ' ✓✓' : ''}</div>
+    `;
+
+    wrap.appendChild(div);
+    if (scrollDown) scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  // ── Realtime subscription ──────────────────────────────────
+  function subscribeToMessages() {
+    subscription = supabase
+      .channel(`chat:${matchId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'binder_messages', filter: `match_id=eq.${matchId}` },
+        (payload) => {
+          // Avoid duplicates (we optimistically append own messages)
+          if (payload.new.sender_id === ME) return;
+          appendMessage(payload.new);
+        }
+      )
+      .subscribe();
+  }
+
+  // ── Send message ───────────────────────────────────────────
+  async function sendMessage() {
+    const content = input.value.trim();
+    if (!content) return;
+
+    // XSS: content goes to DB, not directly to DOM. When rendered, esc() is applied.
+    if (content.length > 2000) { toast('הודעה ארוכה מדי', 'warning'); return; }
+
+    input.value = '';
+    adjustTextarea();
+    sendBtn.disabled = true;
+
+    // Optimistic append
+    const optimistic = {
+      id:         `opt-${Date.now()}`,
+      sender_id:  ME,
+      content,
+      created_at: new Date().toISOString(),
+      read_at:    null,
+    };
+    appendMessage(optimistic);
+
+    const { data, error } = await supabase
+      .from('binder_messages')
+      .insert({ match_id: matchId, sender_id: ME, content })
+      .select()
+      .single();
+
+    if (error) {
+      toast('שגיאה בשליחת הודעה', 'error');
+      // Remove optimistic
+      document.querySelector(`[data-msg-id="${optimistic.id}"]`)?.remove();
+      input.value = content;
+    }
+  }
+
+  document.getElementById('chatForm').addEventListener('submit', sendMessage);
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  // Enter = send, Shift+Enter = newline
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Enable/disable send button
+  input.addEventListener('input', () => {
+    sendBtn.disabled = !input.value.trim();
+    adjustTextarea();
+  });
+
+  function adjustTextarea() {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  }
+
+  // ── Cleanup on leave ───────────────────────────────────────
+  window.addEventListener('beforeunload', () => {
+    subscription?.unsubscribe();
+  });
+
+  await init();
+</script>
+</body>
+</html>

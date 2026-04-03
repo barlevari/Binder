@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>בינדר – הדף לא נמצא</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    .error-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      padding: var(--space-6);
+    }
+
+    .error-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-16);
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+      animation: fadeInUp 0.5s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .error-illustration {
+      font-size: 96px;
+      line-height: 1;
+      margin-bottom: var(--space-6);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    .error-code {
+      font-size: 5rem;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: var(--space-3);
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .error-description {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: var(--space-8);
+    }
+
+    .error-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .error-links {
+      margin-top: var(--space-6);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--border-light);
+    }
+
+    .error-links p {
+      color: var(--text-tertiary);
+      font-size: 0.875rem;
+      margin-bottom: var(--space-3);
+    }
+
+    .quick-links {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-4);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border-radius: var(--radius-full);
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      border: 1px solid var(--border-light);
+    }
+
+    .quick-link:hover {
+      background: var(--primary-50);
+      color: var(--primary-600);
+      border-color: var(--primary-200);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+  <div class="error-page">
+    <div class="error-card">
+      <div class="error-illustration">🔍</div>
+      <div class="error-code">404</div>
+      <h1 class="error-title">הדף לא נמצא</h1>
+      <p class="error-description">
+        נראה שהדף שחיפשת לא קיים או הועבר למקום אחר.<br />
+        אולי הקישור שגוי, או שהדף הוסר.
+      </p>
+
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary btn-lg">
+          <span>🏠</span> חזרה לדף הבית
+        </a>
+        <button onclick="history.back()" class="btn btn-secondary btn-lg">
+          <span>←</span> חזרה אחורה
+        </button>
+      </div>
+
+      <div class="error-links">
+        <p>או עבור לאחד מהדפים הבאים:</p>
+        <div class="quick-links">
+          <a href="/discover.html" class="quick-link">✨ גלה</a>
+          <a href="/matches.html" class="quick-link">💬 ההתאמות שלי</a>
+          <a href="/profile.html" class="quick-link">👤 הפרופיל שלי</a>
+          <a href="/auth.html" class="quick-link">🔑 התחברות</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>גילוי | בינדר</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .profile-card { transition: none; }
+    .profile-card.animating-like {
+      animation: swipeRight 0.4s ease forwards;
+    }
+    .profile-card.animating-pass {
+      animation: swipeLeft 0.4s ease forwards;
+    }
+    @keyframes swipeRight {
+      to { transform: translateX(120%) rotate(20deg); opacity: 0; }
+    }
+    @keyframes swipeLeft {
+      to { transform: translateX(-120%) rotate(-20deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="discover-page">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
+    <a href="/discover.html" class="navbar-brand">בינדר<span>✦</span></a>
+    <div class="navbar-nav">
+      <a href="/discover.html" class="nav-link active">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <span class="nav-text">גילוי</span>
+      </a>
+      <a href="/matches.html" class="nav-link" id="matchesNavLink">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="nav-text">התאמות</span>
+      </a>
+      <a href="/profile.html" class="nav-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="nav-text">פרופיל</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="discover-main">
+  <!-- Loading -->
+  <div class="page-loading" id="loadingState">
+    <div class="spinner spinner-dark"></div>
+    <p>טוען אנשים...</p>
+  </div>
+
+  <!-- Card Stack -->
+  <div class="card-stack hidden" id="cardStack"></div>
+
+  <!-- Empty -->
+  <div class="empty-state hidden" id="emptyState">
+    <div class="empty-state-icon">🎉</div>
+    <h3>ראית את כולם!</h3>
+    <p>בדוק שוב מחר לאנשים חדשים</p>
+    <a href="/matches.html" class="btn btn-primary btn-lg" style="margin-top:16px;">
+      ראה את ההתאמות שלך →
+    </a>
+  </div>
+
+  <!-- Swipe Actions -->
+  <div class="swipe-actions hidden" id="swipeActions">
+    <button class="swipe-btn swipe-btn-pass" id="passBtn" title="דלג (←)">✕</button>
+    <button class="swipe-btn swipe-btn-like" id="likeBtn" title="אהבתי (→)">♥</button>
+  </div>
+
+  <!-- Keyboard hint -->
+  <p class="text-sm text-gray hidden" id="keyboardHint" style="margin-top:12px;">
+    ← דלג &nbsp;|&nbsp; → אהבתי
+  </p>
+</div>
+
+<!-- Match Popup -->
+<div class="match-popup hidden" id="matchPopup">
+  <div class="match-popup-card">
+    <div class="match-emoji">🎉</div>
+    <h2>זה מאץ'!</h2>
+    <p>גם <strong id="matchName"></strong> אוהב/ת אותך!</p>
+    <div class="match-avatars">
+      <div class="avatar avatar-lg" id="myAvatar"></div>
+      <div class="match-heart">♥</div>
+      <div class="avatar avatar-lg" id="theirAvatar"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn btn-primary btn-lg" id="chatNowBtn">שלח הודעה ראשונה 💬</button>
+      <button class="btn btn-ghost" onclick="closeMatch()">המשך לגלות</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { supabase }                       from '/js/config.js';
+  import { toast, avatarUrl, esc, requireOnboarding, formatTime } from '/js/utils.js';
+
+  const session = await requireOnboarding(supabase);
+  if (!session) return;
+
+  const ME = session.user.id;
+
+  // ── State ──────────────────────────────────────────────────
+  let cards   = [];
+  let current = 0;
+  let myProfile = null;
+  let pendingMatchId = null;
+
+  // ── Fetch my profile ───────────────────────────────────────
+  const { data: myProf } = await supabase
+    .from('binder_profiles')
+    .select('*, binder_offer_skills(skill_name), binder_need_skills(skill_name)')
+    .eq('id', ME)
+    .single();
+
+  myProfile = myProf;
+
+  // ── Load candidates ────────────────────────────────────────
+  async function loadCandidates() {
+    // Get IDs we already swiped
+    const { data: swiped } = await supabase
+      .from('binder_swipes')
+      .select('swiped_id')
+      .eq('swiper_id', ME);
+
+    const swipedIds = new Set((swiped || []).map(s => s.swiped_id));
+    swipedIds.add(ME); // exclude self
+
+    // Load active profiles
+    const { data: profiles, error } = await supabase
+      .from('binder_profiles')
+      .select(`
+        id, full_name, age, gender, location, bio, avatar_url,
+        binder_offer_skills (skill_name),
+        binder_need_skills  (skill_name)
+      `)
+      .eq('is_active', true)
+      .eq('onboarding_complete', true)
+      .neq('id', ME)
+      .limit(50);
+
+    if (error) { toast('שגיאה בטעינת אנשים', 'error'); return; }
+
+    cards = (profiles || []).filter(p => !swipedIds.has(p.id));
+    current = 0;
+    renderCards();
+  }
+
+  // ── Render card stack ──────────────────────────────────────
+  function renderCards() {
+    const stack   = document.getElementById('cardStack');
+    const loading = document.getElementById('loadingState');
+    const empty   = document.getElementById('emptyState');
+    const actions = document.getElementById('swipeActions');
+    const hint    = document.getElementById('keyboardHint');
+
+    loading.classList.add('hidden');
+
+    if (cards.length === 0) {
+      stack.classList.add('hidden');
+      actions.classList.add('hidden');
+      hint.classList.add('hidden');
+      empty.classList.remove('hidden');
+      return;
+    }
+
+    empty.classList.add('hidden');
+    stack.classList.remove('hidden');
+    actions.classList.remove('hidden');
+    hint.classList.remove('hidden');
+
+    stack.innerHTML = '';
+
+    // Render top 3 cards (back to front order)
+    const visible = cards.slice(current, current + 3);
+    visible.reverse().forEach((profile, reverseIdx) => {
+      const idx  = visible.length - 1 - reverseIdx;
+      const card = buildCard(profile, idx);
+      stack.appendChild(card);
+    });
+  }
+
+  function buildCard(profile, stackPos) {
+    const offerSkills = (profile.binder_offer_skills || []).slice(0, 4);
+    const needSkills  = (profile.binder_need_skills  || []).slice(0, 3);
+
+    const card = document.createElement('div');
+    card.className = `profile-card ${stackPos === 1 ? 'next' : stackPos === 2 ? 'third' : ''}`;
+    card.dataset.userId = profile.id;
+
+    card.innerHTML = `
+      <div class="swipe-overlay like-overlay"><span class="swipe-label">אהבתי ♥</span></div>
+      <div class="swipe-overlay pass-overlay" style="justify-content:flex-end;"><span class="swipe-label pass-label">דלג ✕</span></div>
+
+      <div class="profile-card-photo">
+        <img src="${esc(profile.avatar_url || avatarUrl(profile.id))}"
+             alt="${esc(profile.full_name)}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="profile-card-photo-placeholder" style="display:none;">
+          ${profile.gender === 'female' ? '👩' : '👨'}
+        </div>
+      </div>
+
+      <div class="profile-card-info">
+        <div class="profile-card-name-row">
+          <span class="profile-card-name">${esc(profile.full_name)}</span>
+          <span class="profile-card-age">${profile.age}</span>
+        </div>
+        <div class="profile-card-location">📍 ${esc(profile.location)}</div>
+
+        ${offerSkills.length > 0 ? `
+          <div class="profile-card-skills">
+            <div class="profile-card-skills-label">יכול/ה ללמד</div>
+            <div class="tags-wrap">
+              ${offerSkills.map(s => `<span class="tag tag-primary">${esc(s.skill_name)}</span>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${needSkills.length > 0 ? `
+          <div class="profile-card-skills" style="margin-top:8px;">
+            <div class="profile-card-skills-label">רוצה ללמוד</div>
+            <div class="tags-wrap">
+              ${needSkills.map(s => `<span class="tag tag-success">${esc(s.skill_name)}</span>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    // Drag to swipe
+    if (stackPos === 0) {
+      addDragBehavior(card, profile);
+    }
+
+    return card;
+  }
+
+  // ── Drag/Touch behavior ─────────────────────────────────────
+  function addDragBehavior(card, profile) {
+    let startX = 0, curX = 0, isDragging = false;
+
+    function onStart(x) {
+      startX = curX = x;
+      isDragging = true;
+      card.style.transition = 'none';
+    }
+
+    function onMove(x) {
+      if (!isDragging) return;
+      curX = x;
+      const diff  = curX - startX;
+      const angle = diff * 0.06;
+      card.style.transform = `translateX(${diff}px) rotate(${angle}deg)`;
+
+      // Show overlays
+      const likeOverlay = card.querySelector('.like-overlay');
+      const passOverlay = card.querySelector('.pass-overlay');
+      const pct = Math.min(Math.abs(diff) / 80, 1);
+
+      if (diff > 10) {
+        likeOverlay.style.opacity = pct;
+        passOverlay.style.opacity = 0;
+      } else if (diff < -10) {
+        passOverlay.style.opacity = pct;
+        likeOverlay.style.opacity = 0;
+      } else {
+        likeOverlay.style.opacity = 0;
+        passOverlay.style.opacity = 0;
+      }
+    }
+
+    function onEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      card.style.transition = '';
+
+      const diff = curX - startX;
+      if (diff > 80)       { doSwipe('like', profile, card); }
+      else if (diff < -80) { doSwipe('pass', profile, card); }
+      else {
+        card.style.transform = '';
+        card.querySelector('.like-overlay').style.opacity = 0;
+        card.querySelector('.pass-overlay').style.opacity = 0;
+      }
+    }
+
+    // Mouse
+    card.addEventListener('mousedown',  e => { if (e.button === 0) onStart(e.clientX); });
+    window.addEventListener('mousemove', e => onMove(e.clientX));
+    window.addEventListener('mouseup',   () => onEnd());
+
+    // Touch
+    card.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+    card.addEventListener('touchmove',  e => onMove(e.touches[0].clientX), { passive: true });
+    card.addEventListener('touchend',   () => onEnd());
+  }
+
+  // ── Swipe action ───────────────────────────────────────────
+  async function doSwipe(direction, profile, card) {
+    // Animate
+    card.classList.add(direction === 'like' ? 'animating-like' : 'animating-pass');
+
+    // Record in DB
+    const { error } = await supabase
+      .from('binder_swipes')
+      .insert({ swiper_id: ME, swiped_id: profile.id, direction });
+
+    if (error && !error.message.includes('duplicate')) {
+      toast('שגיאה', 'error');
+    }
+
+    // Check for match
+    if (direction === 'like') {
+      const { data: matchData } = await supabase
+        .from('binder_matches')
+        .select('id')
+        .or(`user1_id.eq.${ME},user2_id.eq.${ME}`)
+        .or(`user1_id.eq.${profile.id},user2_id.eq.${profile.id}`)
+        .single();
+
+      if (matchData) {
+        pendingMatchId = matchData.id;
+        showMatchPopup(profile);
+      }
+    }
+
+    // Advance
+    setTimeout(() => {
+      current++;
+      renderCards();
+    }, 350);
+  }
+
+  // ── Buttons ────────────────────────────────────────────────
+  document.getElementById('passBtn').addEventListener('click', () => {
+    if (current >= cards.length) return;
+    const profile = cards[current];
+    const card    = document.querySelector('.profile-card:not(.next):not(.third)');
+    if (card) doSwipe('pass', profile, card);
+  });
+
+  document.getElementById('likeBtn').addEventListener('click', () => {
+    if (current >= cards.length) return;
+    const profile = cards[current];
+    const card    = document.querySelector('.profile-card:not(.next):not(.third)');
+    if (card) doSwipe('like', profile, card);
+  });
+
+  // ── Keyboard shortcuts ─────────────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (current >= cards.length) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      const profile = cards[current];
+      const card    = document.querySelector('.profile-card:not(.next):not(.third)');
+      if (!card) return;
+      const dir = e.key === 'ArrowRight' ? 'like' : 'pass';
+      doSwipe(dir, profile, card);
+    }
+  });
+
+  // ── Match popup ────────────────────────────────────────────
+  function showMatchPopup(profile) {
+    document.getElementById('matchName').textContent = profile.full_name;
+
+    const myAvatarEl    = document.getElementById('myAvatar');
+    const theirAvatarEl = document.getElementById('theirAvatar');
+
+    myAvatarEl.innerHTML    = `<img src="${avatarUrl(ME)}" alt="אני" style="width:100%;height:100%;object-fit:cover;">`;
+    theirAvatarEl.innerHTML = `<img src="${esc(profile.avatar_url || avatarUrl(profile.id))}" alt="${esc(profile.full_name)}" style="width:100%;height:100%;object-fit:cover;">`;
+
+    document.getElementById('chatNowBtn').onclick = () => {
+      window.location.href = `/chat.html?match=${pendingMatchId}`;
+    };
+
+    document.getElementById('matchPopup').classList.remove('hidden');
+  }
+
+  window.closeMatch = function() {
+    document.getElementById('matchPopup').classList.add('hidden');
+    pendingMatchId = null;
+  };
+
+  // ── Init ───────────────────────────────────────────────────
+  await loadCandidates();
+</script>
+</body>
+</html>
