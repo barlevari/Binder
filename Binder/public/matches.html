@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>התאמות | בינדר</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="matches-page">
+
+<nav class="navbar">
+  <div class="container">
+    <a href="/discover.html" class="navbar-brand">בינדר<span>✦</span></a>
+    <div class="navbar-nav">
+      <a href="/discover.html" class="nav-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <span class="nav-text">גילוי</span>
+      </a>
+      <a href="/matches.html" class="nav-link active">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="nav-text">התאמות</span>
+      </a>
+      <a href="/profile.html" class="nav-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="nav-text">פרופיל</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="matches-header">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <h1>💬 ההתאמות שלי</h1>
+      <a href="/discover.html" class="btn btn-primary btn-sm">+ גלה עוד</a>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="page-loading" id="loadingState">
+  <div class="spinner spinner-dark"></div>
+</div>
+
+<!-- List -->
+<div class="matches-list hidden" id="matchesList"></div>
+
+<!-- Empty -->
+<div class="empty-state hidden" id="emptyState">
+  <div class="empty-state-icon">💙</div>
+  <h3>עדיין אין התאמות</h3>
+  <p>גלה אנשים והחלק ימינה כדי ליצור התאמות!</p>
+  <a href="/discover.html" class="btn btn-primary btn-lg" style="margin-top:16px;">
+    התחל לגלות →
+  </a>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { supabase }                            from '/js/config.js';
+  import { toast, esc, avatarUrl, formatTime, requireOnboarding } from '/js/utils.js';
+
+  const session = await requireOnboarding(supabase);
+  if (!session) return;
+
+  const ME = session.user.id;
+
+  async function loadMatches() {
+    const { data: matches, error } = await supabase
+      .from('binder_matches')
+      .select(`
+        id, created_at,
+        user1_id, user2_id
+      `)
+      .or(`user1_id.eq.${ME},user2_id.eq.${ME}`)
+      .order('created_at', { ascending: false });
+
+    if (error) { toast('שגיאה בטעינת התאמות', 'error'); return; }
+
+    document.getElementById('loadingState').classList.add('hidden');
+
+    if (!matches || matches.length === 0) {
+      document.getElementById('emptyState').classList.remove('hidden');
+      return;
+    }
+
+    // Fetch partner profiles + last message for each match
+    const enriched = await Promise.all(matches.map(async (match) => {
+      const partnerId = match.user1_id === ME ? match.user2_id : match.user1_id;
+
+      const [{ data: partner }, { data: lastMsg }] = await Promise.all([
+        supabase
+          .from('binder_profiles')
+          .select('id, full_name, avatar_url, location')
+          .eq('id', partnerId)
+          .single(),
+        supabase
+          .from('binder_messages')
+          .select('content, created_at, sender_id')
+          .eq('match_id', match.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
+      return { ...match, partner, lastMsg };
+    }));
+
+    const list = document.getElementById('matchesList');
+    list.classList.remove('hidden');
+    list.innerHTML = enriched.map(m => {
+      const p       = m.partner;
+      const msg     = m.lastMsg;
+      const preview = msg
+        ? `${msg.sender_id === ME ? 'אתה: ' : ''}${esc(msg.content.slice(0, 60))}${msg.content.length > 60 ? '...' : ''}`
+        : 'נלחצתם! שלח הודעה ראשונה ✨';
+
+      return `
+        <a class="match-item" href="/chat.html?match=${esc(m.id)}">
+          <div class="avatar avatar-md">
+            <img src="${esc(p?.avatar_url || avatarUrl(p?.id || m.id))}"
+                 alt="${esc(p?.full_name || '?')}"
+                 onerror="this.src='${avatarUrl(m.id)}'">
+          </div>
+          <div class="match-item-info">
+            <div class="match-item-name">${esc(p?.full_name || 'משתמש')}</div>
+            <div class="match-item-preview">${preview}</div>
+          </div>
+          <div class="match-item-meta">
+            <span class="match-item-time">${formatTime(msg?.created_at || m.created_at)}</span>
+          </div>
+        </a>
+      `;
+    }).join('');
+  }
+
+  await loadMatches();
+
+  // Subscribe to new messages → refresh
+  supabase
+    .channel('matches-page')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'binder_messages' }, () => {
+      loadMatches();
+    })
+    .subscribe();
+</script>
+</body>
+</html>

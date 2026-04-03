@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פרופיל | בינדר</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="profile-page">
+
+<nav class="navbar">
+  <div class="container">
+    <a href="/discover.html" class="navbar-brand">בינדר<span>✦</span></a>
+    <div class="navbar-nav">
+      <a href="/discover.html" class="nav-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <span class="nav-text">גילוי</span>
+      </a>
+      <a href="/matches.html" class="nav-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="nav-text">התאמות</span>
+      </a>
+      <a href="/profile.html" class="nav-link active">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="nav-text">פרופיל</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Loading -->
+<div class="page-loading" id="loadingState">
+  <div class="spinner spinner-dark"></div>
+</div>
+
+<!-- Profile content (hidden until loaded) -->
+<div id="profileContent" class="hidden">
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="profile-avatar-wrap">
+      <div class="avatar avatar-xl" id="avatarEl" style="border:4px solid rgba(255,255,255,.4);">
+        <div style="background:rgba(255,255,255,.2);width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">👤</div>
+      </div>
+      <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()" title="שנה תמונה">✏️</button>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="uploadAvatar(event)">
+    </div>
+    <div class="profile-name" id="profileName">טוען...</div>
+    <div class="profile-tagline" id="profileTagline"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="profile-stats-bar">
+    <div class="profile-stat">
+      <div class="profile-stat-value" id="statOffers">0</div>
+      <div class="profile-stat-label">מיומנויות</div>
+    </div>
+    <div class="profile-stat">
+      <div class="profile-stat-value" id="statNeeds">0</div>
+      <div class="profile-stat-label">מחפש ללמוד</div>
+    </div>
+    <div class="profile-stat">
+      <div class="profile-stat-value" id="statMatches">0</div>
+      <div class="profile-stat-label">התאמות</div>
+    </div>
+  </div>
+
+  <!-- Edit info -->
+  <div class="profile-section" id="infoSection">
+    <div class="profile-section-header">
+      <h3>📋 פרטים אישיים</h3>
+      <button class="btn btn-sm btn-secondary" id="editInfoBtn" onclick="toggleEdit()">ערוך</button>
+    </div>
+
+    <!-- View mode -->
+    <div id="infoView">
+      <div style="display:grid;gap:12px;">
+        <div class="flex gap-3 items-center">
+          <span style="font-size:1.1rem;">📍</span>
+          <span id="infoLocation" class="text-gray">—</span>
+        </div>
+        <div class="flex gap-3 items-center">
+          <span style="font-size:1.1rem;">🎂</span>
+          <span id="infoAge" class="text-gray">—</span>
+        </div>
+        <div id="infoBioWrap" class="hidden" style="padding-top:8px;border-top:1px solid var(--border-light);">
+          <p id="infoBio" style="color:var(--mid);line-height:1.6;font-size:.95rem;"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit mode -->
+    <div id="infoEdit" class="hidden">
+      <div class="form-group">
+        <label for="editName">שם מלא</label>
+        <input type="text" id="editName" class="input" maxlength="100">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label for="editAge">גיל</label>
+          <input type="number" id="editAge" class="input" min="18" max="120">
+        </div>
+        <div class="form-group">
+          <label for="editGender">מגדר</label>
+          <select id="editGender" class="input">
+            <option value="male">זכר</option>
+            <option value="female">נקבה</option>
+            <option value="other">אחר</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="editLocation">מיקום</label>
+        <input type="text" id="editLocation" class="input" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label for="editBio">אודות</label>
+        <textarea id="editBio" class="input" rows="3" maxlength="500" placeholder="ספר על עצמך..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-ghost" onclick="toggleEdit()">ביטול</button>
+        <button class="btn btn-primary" id="saveInfoBtn" onclick="saveInfo()">שמור</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offer Skills -->
+  <div class="profile-section">
+    <div class="profile-section-header">
+      <h3>🎓 יכול/ה ללמד</h3>
+      <button class="btn btn-sm btn-secondary" onclick="toggleAddSkill('offer')">+ הוסף</button>
+    </div>
+    <div class="tags-wrap" id="offerSkillsView"></div>
+
+    <div id="addOfferSkillForm" class="hidden" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="newOfferSkill" class="input" placeholder="מיומנות חדשה" maxlength="80" style="flex:1;min-width:160px;">
+        <select id="newOfferProf" class="input" style="width:130px;">
+          <option value="beginner">מתחיל</option>
+          <option value="intermediate" selected>בינוני</option>
+          <option value="expert">מומחה</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="addSkill('offer')">הוסף</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleAddSkill('offer')">ביטול</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Need Skills -->
+  <div class="profile-section">
+    <div class="profile-section-header">
+      <h3>📚 רוצה ללמוד</h3>
+      <button class="btn btn-sm btn-secondary" onclick="toggleAddSkill('need')">+ הוסף</button>
+    </div>
+    <div class="tags-wrap" id="needSkillsView"></div>
+
+    <div id="addNeedSkillForm" class="hidden" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="newNeedSkill" class="input" placeholder="נושא חדש" maxlength="80" style="flex:1;min-width:200px;">
+        <button class="btn btn-primary btn-sm" onclick="addSkill('need')">הוסף</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleAddSkill('need')">ביטול</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="profile-section">
+    <div class="profile-section-header">
+      <h3>⚙️ הגדרות</h3>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--border-light);border-radius:var(--r-md);">
+        <div>
+          <div style="font-weight:600;font-size:.9rem;">הפרופיל שלי גלוי</div>
+          <div style="font-size:.8rem;color:var(--gray);">אנשים אחרים יכולים לראות אותך</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;">
+          <input type="checkbox" id="activeToggle" style="opacity:0;width:0;height:0;" onchange="toggleActive(this)">
+          <span id="activeSlider" style="position:absolute;inset:0;background:var(--border);border-radius:24px;transition:.3s;"></span>
+          <span id="activeThumb" style="position:absolute;top:3px;right:3px;width:18px;height:18px;background:white;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2);"></span>
+        </label>
+      </div>
+
+      <button class="btn btn-secondary w-full" onclick="handleLogout()" style="color:var(--danger);border-color:var(--danger-light);">
+        🚪 התנתקות
+      </button>
+    </div>
+  </div>
+
+</div><!-- /profileContent -->
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { supabase }                    from '/js/config.js';
+  import { toast, esc, avatarUrl, setLoading, requireOnboarding } from '/js/utils.js';
+
+  const session = await requireOnboarding(supabase);
+  if (!session) return;
+
+  const ME = session.user.id;
+  let profile = null;
+  let offerSkills = [];
+  let needSkills  = [];
+
+  const profLabel = { beginner: 'מתחיל', intermediate: 'בינוני', expert: 'מומחה' };
+
+  // ── Load all data ──────────────────────────────────────────
+  async function load() {
+    const [
+      { data: prof },
+      { data: offers },
+      { data: needs },
+      { data: matches },
+    ] = await Promise.all([
+      supabase.from('binder_profiles').select('*').eq('id', ME).single(),
+      supabase.from('binder_offer_skills').select('*').eq('user_id', ME),
+      supabase.from('binder_need_skills').select('*').eq('user_id', ME),
+      supabase.from('binder_matches').select('id').or(`user1_id.eq.${ME},user2_id.eq.${ME}`),
+    ]);
+
+    profile     = prof;
+    offerSkills = offers || [];
+    needSkills  = needs  || [];
+
+    render(matches?.length || 0);
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('profileContent').classList.remove('hidden');
+  }
+
+  function render(matchCount) {
+    // Header
+    document.getElementById('profileName').textContent    = profile.full_name;
+    document.getElementById('profileTagline').textContent = `${profile.location} · ${profile.age}`;
+
+    const avatarSrc = profile.avatar_url || avatarUrl(ME);
+    document.getElementById('avatarEl').innerHTML =
+      `<img src="${esc(avatarSrc)}" alt="${esc(profile.full_name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+
+    // Stats
+    document.getElementById('statOffers').textContent  = offerSkills.length;
+    document.getElementById('statNeeds').textContent   = needSkills.length;
+    document.getElementById('statMatches').textContent = matchCount;
+
+    // Info view
+    document.getElementById('infoLocation').textContent = profile.location;
+    document.getElementById('infoAge').textContent      = `${profile.age}`;
+    if (profile.bio) {
+      document.getElementById('infoBio').textContent = profile.bio;
+      document.getElementById('infoBioWrap').classList.remove('hidden');
+    }
+
+    // Edit fields
+    document.getElementById('editName').value     = profile.full_name;
+    document.getElementById('editAge').value      = profile.age;
+    document.getElementById('editGender').value   = profile.gender;
+    document.getElementById('editLocation').value = profile.location;
+    document.getElementById('editBio').value      = profile.bio || '';
+
+    // Active toggle
+    const toggle = document.getElementById('activeToggle');
+    const slider = document.getElementById('activeSlider');
+    const thumb  = document.getElementById('activeThumb');
+    toggle.checked = profile.is_active;
+    slider.style.background = profile.is_active ? 'var(--primary)' : 'var(--border)';
+    thumb.style.right = profile.is_active ? '3px' : 'calc(100% - 21px)';
+
+    renderSkills();
+  }
+
+  function renderSkills() {
+    const offerWrap = document.getElementById('offerSkillsView');
+    const needWrap  = document.getElementById('needSkillsView');
+
+    offerWrap.innerHTML = offerSkills.length === 0
+      ? '<span style="color:var(--gray-light);font-size:.85rem;">לא הוספת מיומנויות עדיין</span>'
+      : offerSkills.map(s => `
+          <span class="tag tag-primary tag-removable" data-id="${esc(s.id)}" data-type="offer">
+            ${esc(s.skill_name)} · ${profLabel[s.proficiency] || ''} <span class="tag-x">×</span>
+          </span>
+        `).join('');
+
+    needWrap.innerHTML = needSkills.length === 0
+      ? '<span style="color:var(--gray-light);font-size:.85rem;">לא הוספת נושאים עדיין</span>'
+      : needSkills.map(s => `
+          <span class="tag tag-success tag-removable" data-id="${esc(s.id)}" data-type="need">
+            ${esc(s.skill_name)} <span class="tag-x">×</span>
+          </span>
+        `).join('');
+
+    // Remove listeners
+    document.querySelectorAll('.tag-removable').forEach(tag => {
+      tag.querySelector('.tag-x').addEventListener('click', () => removeSkill(tag.dataset.id, tag.dataset.type));
+    });
+  }
+
+  // ── Toggle edit ────────────────────────────────────────────
+  window.toggleEdit = function() {
+    document.getElementById('infoView').classList.toggle('hidden');
+    document.getElementById('infoEdit').classList.toggle('hidden');
+    const btn = document.getElementById('editInfoBtn');
+    btn.textContent = btn.textContent === 'ערוך' ? 'ביטול' : 'ערוך';
+  };
+
+  // ── Save info ──────────────────────────────────────────────
+  window.saveInfo = async function() {
+    const btn      = document.getElementById('saveInfoBtn');
+    const name     = document.getElementById('editName').value.trim();
+    const age      = parseInt(document.getElementById('editAge').value);
+    const gender   = document.getElementById('editGender').value;
+    const location = document.getElementById('editLocation').value.trim();
+    const bio      = document.getElementById('editBio').value.trim();
+
+    if (!name || name.length < 2) { toast('שם לא תקין', 'error'); return; }
+    if (!age || age < 18)          { toast('גיל לא תקין', 'error'); return; }
+    if (!location)                 { toast('הכנס מיקום', 'error'); return; }
+
+    setLoading(btn, true);
+
+    const { error } = await supabase
+      .from('binder_profiles')
+      .update({ full_name: name, age, gender, location, bio })
+      .eq('id', ME);
+
+    setLoading(btn, false, 'שמור');
+
+    if (error) { toast('שגיאה בשמירה', 'error'); return; }
+
+    profile = { ...profile, full_name: name, age, gender, location, bio };
+    render(parseInt(document.getElementById('statMatches').textContent));
+    toggleEdit();
+    toast('הפרופיל עודכן ✓', 'success');
+  };
+
+  // ── Add skill ──────────────────────────────────────────────
+  window.toggleAddSkill = function(type) {
+    const formId = type === 'offer' ? 'addOfferSkillForm' : 'addNeedSkillForm';
+    document.getElementById(formId).classList.toggle('hidden');
+  };
+
+  window.addSkill = async function(type) {
+    const isOffer = type === 'offer';
+    const inputEl = document.getElementById(isOffer ? 'newOfferSkill' : 'newNeedSkill');
+    const name    = inputEl.value.trim();
+
+    if (!name || name.length < 2) { toast('הכנס שם', 'warning'); return; }
+
+    const payload = isOffer
+      ? { user_id: ME, skill_name: name, proficiency: document.getElementById('newOfferProf').value }
+      : { user_id: ME, skill_name: name };
+
+    const table = isOffer ? 'binder_offer_skills' : 'binder_need_skills';
+    const { data, error } = await supabase.from(table).insert(payload).select().single();
+
+    if (error) { toast('שגיאה בהוספה', 'error'); return; }
+
+    if (isOffer) offerSkills.push(data);
+    else         needSkills.push(data);
+
+    inputEl.value = '';
+    renderSkills();
+    document.getElementById(isOffer ? 'statOffers' : 'statNeeds').textContent =
+      isOffer ? offerSkills.length : needSkills.length;
+    toast('נוסף ✓', 'success');
+  };
+
+  // ── Remove skill ───────────────────────────────────────────
+  async function removeSkill(id, type) {
+    const isOffer = type === 'offer';
+    const table   = isOffer ? 'binder_offer_skills' : 'binder_need_skills';
+    const { error } = await supabase.from(table).delete().eq('id', id);
+
+    if (error) { toast('שגיאה במחיקה', 'error'); return; }
+
+    if (isOffer) offerSkills = offerSkills.filter(s => s.id !== id);
+    else         needSkills  = needSkills.filter(s => s.id !== id);
+
+    renderSkills();
+    document.getElementById(isOffer ? 'statOffers' : 'statNeeds').textContent =
+      isOffer ? offerSkills.length : needSkills.length;
+  }
+
+  // ── Avatar upload ──────────────────────────────────────────
+  window.uploadAvatar = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate: image only, max 2MB
+    if (!file.type.startsWith('image/')) { toast('בחר קובץ תמונה', 'error'); return; }
+    if (file.size > 2 * 1024 * 1024)    { toast('תמונה גדולה מדי (מקסימום 2MB)', 'error'); return; }
+
+    toast('מעלה תמונה...', 'default');
+
+    const ext      = file.name.split('.').pop();
+    const filePath = `avatars/${ME}.${ext}`;
+
+    const { error: upErr } = await supabase.storage
+      .from('binder-avatars')
+      .upload(filePath, file, { upsert: true, contentType: file.type });
+
+    if (upErr) {
+      // Storage bucket might not exist yet – use DiceBear fallback
+      toast('שגיאה בהעלאה. משתמש בתמונה ברירת מחדל.', 'warning');
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from('binder-avatars').getPublicUrl(filePath);
+    const publicUrl = urlData.publicUrl;
+
+    await supabase.from('binder_profiles').update({ avatar_url: publicUrl }).eq('id', ME);
+    profile.avatar_url = publicUrl;
+
+    document.getElementById('avatarEl').innerHTML =
+      `<img src="${esc(publicUrl)}" alt="אוואטר" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+
+    toast('תמונה עודכנה ✓', 'success');
+  };
+
+  // ── Toggle active ──────────────────────────────────────────
+  window.toggleActive = async function(checkbox) {
+    const active = checkbox.checked;
+    const slider = document.getElementById('activeSlider');
+    const thumb  = document.getElementById('activeThumb');
+
+    slider.style.background = active ? 'var(--primary)' : 'var(--border)';
+    thumb.style.right = active ? '3px' : 'calc(100% - 21px)';
+
+    await supabase.from('binder_profiles').update({ is_active: active }).eq('id', ME);
+    profile.is_active = active;
+    toast(active ? 'הפרופיל גלוי ✓' : 'הפרופיל מוסתר', active ? 'success' : 'default');
+  };
+
+  // ── Logout ─────────────────────────────────────────────────
+  window.handleLogout = async function() {
+    await supabase.auth.signOut();
+    window.location.href = '/auth.html';
+  };
+
+  await load();
+</script>
+</body>
+</html>
