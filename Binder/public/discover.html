@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>גילוי | בינדר</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/css/styles.css?v=4">
   <style>
+    .hidden{display:none!important}
     .profile-card { transition: none; }
     .profile-card.animating-like {
       animation: swipeRight 0.4s ease forwards;
@@ -100,6 +103,7 @@
   import { supabase }                       from '/js/config.js';
   import { toast, avatarUrl, esc, requireOnboarding, formatTime } from '/js/utils.js';
 
+  (async () => {
   const session = await requireOnboarding(supabase);
   if (!session) return;
 
@@ -315,14 +319,13 @@
       toast('שגיאה', 'error');
     }
 
-    // Check for match
-    if (direction === 'like') {
+    // Check for match (use nested and() in a single or() to find match between both users)
+    if (direction === 'like' && !error) {
       const { data: matchData } = await supabase
         .from('binder_matches')
         .select('id')
-        .or(`user1_id.eq.${ME},user2_id.eq.${ME}`)
-        .or(`user1_id.eq.${profile.id},user2_id.eq.${profile.id}`)
-        .single();
+        .or(`and(user1_id.eq.${ME},user2_id.eq.${profile.id}),and(user1_id.eq.${profile.id},user2_id.eq.${ME})`)
+        .maybeSingle();
 
       if (matchData) {
         pendingMatchId = matchData.id;
@@ -388,6 +391,7 @@
 
   // ── Init ───────────────────────────────────────────────────
   await loadCandidates();
+  })();
 </script>
 </body>
 </html>

@@ -5,57 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="בינדר - פלטפורמת עזרה הדדית. מצא מישהו שיעזור לך, או עזור למישהו אחר.">
   <title>בינדר | עזרה הדדית</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/styles.css?v=4">
 </head>
 <body>
 
 <!-- NAVBAR -->
 <nav class="landing-navbar" id="landingNav">
-  <a href="/" class="navbar-brand" style="color:white;font-size:1.5rem;font-weight:900;">
-    בינדר<span style="opacity:.6">✦</span>
-  </a>
-  <div style="display:flex;gap:12px;align-items:center;">
-    <a href="/auth.html" id="navLoginBtn" style="color:rgba(255,255,255,.85);font-size:.9rem;font-weight:500;padding:8px 16px;">כניסה</a>
-    <a href="/auth.html?tab=signup" class="btn-hero-primary" style="padding:10px 22px;font-size:.9rem;">הצטרפות</a>
+  <a href="/" class="navbar-brand">בינדר<span>✦</span></a>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <a href="/auth.html" id="navLoginBtn" class="btn btn-ghost btn-sm">כניסה</a>
+    <a href="/auth.html?tab=signup" class="btn btn-primary btn-sm">הצטרפות</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-shapes">
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
-  </div>
   <div class="hero-content">
-    <div class="hero-badge">✨ פלטפורמת העזרה ההדדית הגדולה בישראל</div>
-    <h1>תן, קבל, <span class="highlight">התחבר</span></h1>
-    <p>בינדר מחברת אנשים שיש להם ידע עם אנשים שצריכים אותו.<br>
-       בחינם. בלי תשלום. רק עזרה אמיתית.</p>
-    <div class="hero-buttons">
+    <div class="hero-badge">✦ פלטפורמת עזרה הדדית</div>
+    <h1>תן, קבל,<br><span class="highlight">התחבר</span></h1>
+    <p class="hero-sub">
+      בינדר מחברת אנשים שיש להם ידע עם אנשים שצריכים אותו.<br>
+      בחינם. בלי תשלום. רק עזרה אמיתית.
+    </p>
+    <div class="hero-actions">
       <a href="/auth.html?tab=signup" class="btn-hero-primary">
-        🚀 התחל עכשיו - בחינם
+        התחל עכשיו — בחינם
       </a>
       <a href="#how-it-works" class="btn-hero-secondary">
         איך זה עובד?
       </a>
     </div>
+
+    <!-- Live stats -->
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-number" id="statUsers">…</div>
+        <div class="stat-number" id="statUsers">—</div>
         <div class="stat-label">משתמשים</div>
       </div>
       <div class="stat">
-        <div class="stat-number" id="statSkills">…</div>
+        <div class="stat-number" id="statSkills">—</div>
         <div class="stat-label">נושאי עזרה</div>
       </div>
       <div class="stat">
-        <div class="stat-number" id="statMatches">…</div>
+        <div class="stat-number" id="statMatches">—</div>
         <div class="stat-label">חיבורים</div>
       </div>
     </div>
   </div>
 </section>
+
+<div class="section-divider"></div>
 
 <!-- HOW IT WORKS -->
 <section class="section" id="how-it-works">
@@ -67,26 +66,28 @@
     </div>
     <div class="steps-grid">
       <div class="step-card">
-        <div class="step-number">1</div>
+        <div class="step-number">01</div>
         <h3>יצירת פרופיל</h3>
-        <p>מלא את הפרופיל שלך - מה אתה יכול ללמד ומה אתה רוצה ללמוד</p>
+        <p>מלא את הפרופיל שלך — מה אתה יכול ללמד ומה אתה רוצה ללמוד</p>
       </div>
       <div class="step-card">
-        <div class="step-number">2</div>
+        <div class="step-number">02</div>
         <h3>גילוי התאמות</h3>
-        <p>גלה אנשים עם מיומנויות משלימות - גרור ימינה למי שמעניין אותך</p>
+        <p>גלה אנשים עם מיומנויות משלימות — גרור ימינה למי שמעניין אותך</p>
       </div>
       <div class="step-card">
-        <div class="step-number">3</div>
-        <h3>התחברות ועזרה</h3>
+        <div class="step-number">03</div>
+        <h3>שיחה ועזרה</h3>
         <p>כשיש התאמה, תוכלו לדבר ולהחליף ידע בצ'אט בזמן אמת</p>
       </div>
     </div>
   </div>
 </section>
 
+<div class="section-divider"></div>
+
 <!-- FEATURES -->
-<section class="section" style="background:var(--white);">
+<section class="section">
   <div class="container">
     <div class="section-header">
       <span class="section-eyebrow">למה בינדר?</span>
@@ -97,7 +98,7 @@
       <div class="feature-card">
         <div class="feature-icon purple">🧠</div>
         <h3>ידע אמיתי</h3>
-        <p>מחבר אנשים עם ניסיון אמיתי - לא קורסים, לא וידאו, שיחה אנושית אמיתית</p>
+        <p>מחבר אנשים עם ניסיון אמיתי — לא קורסים, לא וידאו, שיחה אנושית</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon green">🤝</div>
@@ -107,7 +108,7 @@
       <div class="feature-card">
         <div class="feature-icon yellow">⚡</div>
         <h3>מהיר ופשוט</h3>
-        <p>צ'אט בזמן אמת, התאמה חכמה על בסיס מיומנויות, ממשק נקי</p>
+        <p>צ'אט בזמן אמת, התאמה על בסיס מיומנויות, ממשק נקי ומינימלי</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon red">🔒</div>
@@ -123,18 +124,16 @@
   <div class="cta-section">
     <h2>מוכן להתחיל?</h2>
     <p>הצטרף לקהילת העזרה ההדדית — כולם עוזרים, כולם מרוויחים</p>
-    <a href="/auth.html?tab=signup" class="btn-hero-primary btn-lg">
-      הצטרף בחינם
-    </a>
+    <a href="/auth.html?tab=signup" class="btn btn-primary btn-lg">הצטרף בחינם</a>
   </div>
 </div>
 
 <!-- FOOTER -->
 <footer>
   <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-    <div style="font-weight:700;color:rgba(255,255,255,.9);font-size:1.1rem;">בינדר ✦</div>
-    <div style="font-size:.85rem;">© 2026 בינדר. כל הזכויות שמורות.</div>
-    <div style="display:flex;gap:16px;font-size:.85rem;">
+    <div style="font-family:var(--font-display);font-size:1.1rem;">בינדר <span style="color:var(--accent)">✦</span></div>
+    <div>© 2026 בינדר. כל הזכויות שמורות.</div>
+    <div style="display:flex;gap:var(--sp-5);">
       <a href="#">פרטיות</a>
       <a href="#">תנאי שימוש</a>
       <a href="#">יצירת קשר</a>
@@ -151,10 +150,9 @@
     nav.classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  // Load real stats + update login button
+  // Load real stats + update nav for logged-in users
   import('/js/config.js').then(({ supabase }) => {
 
-    // Auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         const btn = document.getElementById('navLoginBtn');
@@ -162,23 +160,14 @@
       }
     });
 
-    // Real stats from DB
     async function loadStats() {
-      const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.0','') + 'K' : String(n);
-
-      const [
-        { count: users },
-        { count: skills },
-        { count: matches }
-      ] = await Promise.all([
-        supabase.from('binder_profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('binder_offer_skills').select('skill_name', { count: 'exact', head: true }),
-        supabase.from('binder_matches').select('*', { count: 'exact', head: true }),
-      ]);
-
-      document.getElementById('statUsers').textContent   = fmt(users   ?? 0);
-      document.getElementById('statSkills').textContent  = fmt(skills  ?? 0);
-      document.getElementById('statMatches').textContent = fmt(matches ?? 0);
+      const fmt = n => n >= 1000 ? (n/1000).toFixed(1).replace('.0','') + 'K' : String(n);
+      const { data, error } = await supabase.rpc('get_platform_stats');
+      if (!error && data) {
+        document.getElementById('statUsers').textContent   = fmt(data.users   ?? 0);
+        document.getElementById('statSkills').textContent  = fmt(data.skills  ?? 0);
+        document.getElementById('statMatches').textContent = fmt(data.matches ?? 0);
+      }
     }
 
     loadStats();

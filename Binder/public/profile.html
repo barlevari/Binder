@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>פרופיל | בינדר</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/css/styles.css?v=4">
+  <style>.hidden{display:none!important}</style>
 </head>
 <body class="profile-page">
 
@@ -77,14 +80,14 @@
       <div style="display:grid;gap:12px;">
         <div class="flex gap-3 items-center">
           <span style="font-size:1.1rem;">📍</span>
-          <span id="infoLocation" class="text-gray">—</span>
+          <span id="infoLocation" style="color:var(--text-2);">—</span>
         </div>
         <div class="flex gap-3 items-center">
           <span style="font-size:1.1rem;">🎂</span>
-          <span id="infoAge" class="text-gray">—</span>
+          <span id="infoAge" style="color:var(--text-2);">—</span>
         </div>
-        <div id="infoBioWrap" class="hidden" style="padding-top:8px;border-top:1px solid var(--border-light);">
-          <p id="infoBio" style="color:var(--mid);line-height:1.6;font-size:.95rem;"></p>
+        <div id="infoBioWrap" class="hidden" style="padding-top:8px;border-top:1px solid var(--border);">
+          <p id="infoBio" style="color:var(--text-2);line-height:1.6;font-size:.95rem;"></p>
         </div>
       </div>
     </div>
@@ -93,16 +96,16 @@
     <div id="infoEdit" class="hidden">
       <div class="form-group">
         <label for="editName">שם מלא</label>
-        <input type="text" id="editName" class="input" maxlength="100">
+        <input type="text" id="editName" class="form-input" maxlength="100">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div class="form-group">
           <label for="editAge">גיל</label>
-          <input type="number" id="editAge" class="input" min="18" max="120">
+          <input type="number" id="editAge" class="form-input" min="18" max="120">
         </div>
         <div class="form-group">
           <label for="editGender">מגדר</label>
-          <select id="editGender" class="input">
+          <select id="editGender" class="form-input">
             <option value="male">זכר</option>
             <option value="female">נקבה</option>
             <option value="other">אחר</option>
@@ -111,11 +114,11 @@
       </div>
       <div class="form-group">
         <label for="editLocation">מיקום</label>
-        <input type="text" id="editLocation" class="input" maxlength="100">
+        <input type="text" id="editLocation" class="form-input" maxlength="100">
       </div>
       <div class="form-group">
         <label for="editBio">אודות</label>
-        <textarea id="editBio" class="input" rows="3" maxlength="500" placeholder="ספר על עצמך..."></textarea>
+        <textarea id="editBio" class="form-input" rows="3" maxlength="500" placeholder="ספר על עצמך..."></textarea>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
         <button class="btn btn-ghost" onclick="toggleEdit()">ביטול</button>
@@ -134,8 +137,8 @@
 
     <div id="addOfferSkillForm" class="hidden" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input type="text" id="newOfferSkill" class="input" placeholder="מיומנות חדשה" maxlength="80" style="flex:1;min-width:160px;">
-        <select id="newOfferProf" class="input" style="width:130px;">
+        <input type="text" id="newOfferSkill" class="form-input" placeholder="מיומנות חדשה" maxlength="80" style="flex:1;min-width:160px;">
+        <select id="newOfferProf" class="form-input" style="width:130px;">
           <option value="beginner">מתחיל</option>
           <option value="intermediate" selected>בינוני</option>
           <option value="expert">מומחה</option>
@@ -156,7 +159,7 @@
 
     <div id="addNeedSkillForm" class="hidden" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input type="text" id="newNeedSkill" class="input" placeholder="נושא חדש" maxlength="80" style="flex:1;min-width:200px;">
+        <input type="text" id="newNeedSkill" class="form-input" placeholder="נושא חדש" maxlength="80" style="flex:1;min-width:200px;">
         <button class="btn btn-primary btn-sm" onclick="addSkill('need')">הוסף</button>
         <button class="btn btn-ghost btn-sm" onclick="toggleAddSkill('need')">ביטול</button>
       </div>
@@ -169,10 +172,10 @@
       <h3>⚙️ הגדרות</h3>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--border-light);border-radius:var(--r-md);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--border);border-radius:var(--r-md);">
         <div>
           <div style="font-weight:600;font-size:.9rem;">הפרופיל שלי גלוי</div>
-          <div style="font-size:.8rem;color:var(--gray);">אנשים אחרים יכולים לראות אותך</div>
+          <div style="font-size:.8rem;color:var(--text-2);">אנשים אחרים יכולים לראות אותך</div>
         </div>
         <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;">
           <input type="checkbox" id="activeToggle" style="opacity:0;width:0;height:0;" onchange="toggleActive(this)">
@@ -181,7 +184,7 @@
         </label>
       </div>
 
-      <button class="btn btn-secondary w-full" onclick="handleLogout()" style="color:var(--danger);border-color:var(--danger-light);">
+      <button class="btn btn-secondary w-full" onclick="handleLogout()" style="color:var(--red);border-color:rgba(248,113,113,0.25);">
         🚪 התנתקות
       </button>
     </div>
@@ -195,6 +198,7 @@
   import { supabase }                    from '/js/config.js';
   import { toast, esc, avatarUrl, setLoading, requireOnboarding } from '/js/utils.js';
 
+  (async () => {
   const session = await requireOnboarding(supabase);
   if (!session) return;
 
@@ -262,7 +266,7 @@
     const slider = document.getElementById('activeSlider');
     const thumb  = document.getElementById('activeThumb');
     toggle.checked = profile.is_active;
-    slider.style.background = profile.is_active ? 'var(--primary)' : 'var(--border)';
+    slider.style.background = profile.is_active ? 'var(--accent)' : 'var(--border)';
     thumb.style.right = profile.is_active ? '3px' : 'calc(100% - 21px)';
 
     renderSkills();
@@ -273,7 +277,7 @@
     const needWrap  = document.getElementById('needSkillsView');
 
     offerWrap.innerHTML = offerSkills.length === 0
-      ? '<span style="color:var(--gray-light);font-size:.85rem;">לא הוספת מיומנויות עדיין</span>'
+      ? '<span style="color:var(--text-3);font-size:.85rem;">לא הוספת מיומנויות עדיין</span>'
       : offerSkills.map(s => `
           <span class="tag tag-primary tag-removable" data-id="${esc(s.id)}" data-type="offer">
             ${esc(s.skill_name)} · ${profLabel[s.proficiency] || ''} <span class="tag-x">×</span>
@@ -281,7 +285,7 @@
         `).join('');
 
     needWrap.innerHTML = needSkills.length === 0
-      ? '<span style="color:var(--gray-light);font-size:.85rem;">לא הוספת נושאים עדיין</span>'
+      ? '<span style="color:var(--text-3);font-size:.85rem;">לא הוספת נושאים עדיין</span>'
       : needSkills.map(s => `
           <span class="tag tag-success tag-removable" data-id="${esc(s.id)}" data-type="need">
             ${esc(s.skill_name)} <span class="tag-x">×</span>
@@ -422,7 +426,7 @@
     const slider = document.getElementById('activeSlider');
     const thumb  = document.getElementById('activeThumb');
 
-    slider.style.background = active ? 'var(--primary)' : 'var(--border)';
+    slider.style.background = active ? 'var(--accent)' : 'var(--border)';
     thumb.style.right = active ? '3px' : 'calc(100% - 21px)';
 
     await supabase.from('binder_profiles').update({ is_active: active }).eq('id', ME);
@@ -437,6 +441,7 @@
   };
 
   await load();
+  })();
 </script>
 </body>
 </html>
