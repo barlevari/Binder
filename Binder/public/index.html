@@ -42,15 +42,15 @@
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-number">2,400+</div>
+        <div class="stat-number" id="statUsers">…</div>
         <div class="stat-label">משתמשים</div>
       </div>
       <div class="stat">
-        <div class="stat-number">180+</div>
+        <div class="stat-number" id="statSkills">…</div>
         <div class="stat-label">נושאי עזרה</div>
       </div>
       <div class="stat">
-        <div class="stat-number">4,800+</div>
+        <div class="stat-number" id="statMatches">…</div>
         <div class="stat-label">חיבורים</div>
       </div>
     </div>
@@ -122,7 +122,7 @@
 <div class="container" style="padding:0 var(--sp-6);">
   <div class="cta-section">
     <h2>מוכן להתחיל?</h2>
-    <p>הצטרף לאלפי אנשים שכבר מחליפים ידע ועוזרים אחד לשני</p>
+    <p>הצטרף לקהילת העזרה ההדדית — כולם עוזרים, כולם מרוויחים</p>
     <a href="/auth.html?tab=signup" class="btn-hero-primary btn-lg">
       הצטרף בחינם
     </a>
@@ -151,17 +151,37 @@
     nav.classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  // Update login button if already logged in
+  // Load real stats + update login button
   import('/js/config.js').then(({ supabase }) => {
+
+    // Auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         const btn = document.getElementById('navLoginBtn');
-        if (btn) {
-          btn.textContent = 'גילוי';
-          btn.href = '/discover.html';
-        }
+        if (btn) { btn.textContent = 'גילוי'; btn.href = '/discover.html'; }
       }
     });
+
+    // Real stats from DB
+    async function loadStats() {
+      const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.0','') + 'K' : String(n);
+
+      const [
+        { count: users },
+        { count: skills },
+        { count: matches }
+      ] = await Promise.all([
+        supabase.from('binder_profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('binder_offer_skills').select('skill_name', { count: 'exact', head: true }),
+        supabase.from('binder_matches').select('*', { count: 'exact', head: true }),
+      ]);
+
+      document.getElementById('statUsers').textContent   = fmt(users   ?? 0);
+      document.getElementById('statSkills').textContent  = fmt(skills  ?? 0);
+      document.getElementById('statMatches').textContent = fmt(matches ?? 0);
+    }
+
+    loadStats();
   });
 </script>
 </body>
