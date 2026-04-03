@@ -34,7 +34,7 @@
 <div class="matches-header">
   <div class="container">
     <div style="display:flex;align-items:center;justify-content:space-between;">
-      <h1>💬 ההתאמות שלי</h1>
+      <h1>ההתאמות שלי</h1>
       <a href="/discover.html" class="btn btn-primary btn-sm">+ גלה עוד</a>
     </div>
   </div>
@@ -52,7 +52,7 @@
 <div class="empty-state hidden" id="emptyState">
   <div class="empty-state-icon">💙</div>
   <h3>עדיין אין התאמות</h3>
-  <p>גלה אנשים והחלק ימינה כדי ליצור התאמות!</p>
+  <p>החלק ימינה על אנשים שמתאימים לך</p>
   <a href="/discover.html" class="btn btn-primary btn-lg" style="margin-top:16px;">
     התחל לגלות →
   </a>
@@ -118,7 +118,7 @@
       const msg     = m.lastMsg;
       const preview = msg
         ? `${msg.sender_id === ME ? 'אתה: ' : ''}${esc(msg.content.slice(0, 60))}${msg.content.length > 60 ? '...' : ''}`
-        : 'נלחצתם! שלח הודעה ראשונה ✨';
+        : 'התאמה חדשה — שלח הודעה';
 
       return `
         <a class="match-item" href="/chat.html?match=${esc(m.id)}">

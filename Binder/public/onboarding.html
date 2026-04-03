@@ -29,8 +29,8 @@
 
 <!-- STEP 0: Personal Info -->
 <div class="onboarding-card" id="step0">
-  <h2>👋 ספר לנו עליך</h2>
-  <p>פרטים בסיסיים לפרופיל שלך</p>
+  <h2>👋 קצת עליך</h2>
+  <p>פרטים בסיסיים כדי שנדע מי אתה</p>
 
   <div class="form-group">
     <label for="fullName">שם מלא *</label>
@@ -76,8 +76,8 @@
 
 <!-- STEP 1: Skills I OFFER -->
 <div class="onboarding-card hidden" id="step1">
-  <h2>🎓 מה אתה יכול ללמד?</h2>
-  <p>הוסף מיומנויות שאתה יכול לעזור לאחרים ללמוד</p>
+  <h2>🎓 מה אתה יודע?</h2>
+  <p>דברים שאתה יכול ללמד אחרים</p>
 
   <div class="skill-input-wrap">
     <input type="text" id="offerSkillInput" class="form-input" placeholder="הוסף מיומנות... (למשל: JavaScript, אנגלית, גיטרה)" maxlength="80">
@@ -105,8 +105,8 @@
 
 <!-- STEP 2: Skills I NEED -->
 <div class="onboarding-card hidden" id="step2">
-  <h2>📚 מה אתה רוצה ללמוד?</h2>
-  <p>הוסף נושאים שאתה מחפש עזרה בהם</p>
+  <h2>📚 מה אתה צריך?</h2>
+  <p>נושאים שתרצה שמישהו יעזור לך בהם</p>
 
   <div class="skill-input-wrap">
     <input type="text" id="needSkillInput" class="form-input" placeholder="הוסף נושא... (למשל: Python, ציור, כושר)" maxlength="80">
@@ -127,7 +127,7 @@
 
 <!-- STEP 3: Role + Communication -->
 <div class="onboarding-card hidden" id="step3">
-  <h2>🎯 איך אתה רוצה להשתתף?</h2>
+  <h2>🎯 מה התפקיד שלך?</h2>
 
   <label style="display:block;margin-bottom:12px;color:var(--text-2);font-weight:600;">תפקיד</label>
   <div class="role-cards" id="roleCards">
@@ -177,7 +177,7 @@
   <div class="onboarding-footer">
     <button class="btn btn-ghost" onclick="prevStep(2)">← חזרה</button>
     <button class="btn btn-primary btn-lg" id="finishBtn" onclick="finishOnboarding()">
-      סיים והתחל 🚀
+      סיים
     </button>
   </div>
 </div>
@@ -487,13 +487,13 @@
         if (needErr) throw needErr;
       }
 
-      toast('פרופיל נוצר! מתחיל לגלות 🎉', 'success');
+      toast('הפרופיל מוכן. יאללה.', 'success');
       setTimeout(() => { window.location.href = '/discover.html'; }, 1200);
 
     } catch (err) {
       console.error(err);
       toast('שגיאה בשמירת הפרופיל. נסה שוב.', 'error');
-      setLoading(btn, false, 'סיים והתחל 🚀');
+      setLoading(btn, false, 'סיים');
     }
   };
   })();
