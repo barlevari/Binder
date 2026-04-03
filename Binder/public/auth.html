@@ -20,9 +20,8 @@
   <div class="auth-left">
     <div class="auth-left-content">
       <span class="auth-left-emoji">🤝</span>
-      <h2 class="auth-left-title">ברוך הבא לבינדר</h2>
-      <p class="auth-left-desc">פלטפורמת עזרה הדדית שמחברת אנשים<br>
-         עם ידע לאנשים שצריכים אותו</p>
+      <h2 class="auth-left-title">ברוך הבא</h2>
+      <p class="auth-left-desc">אנשים עוזרים לאנשים.<br>בחינם.</p>
     </div>
   </div>
 
@@ -215,7 +214,7 @@
       return;
     }
 
-    toast('ברוך הבא! 👋', 'success');
+    toast('מחובר.', 'success');
     await redirectAfterAuth(data.user.id);
   });
 
@@ -266,11 +265,11 @@
 
     // If session exists → auto-confirmed, redirect immediately
     if (data.session) {
-      toast('נרשמת בהצלחה! 🎉', 'success');
+      toast('נרשמת בהצלחה.', 'success');
       window.location.href = '/onboarding.html';
     } else {
       // Email confirmation required
-      toast('נשלח אימייל אימות! בדוק את תיבת הדואר שלך 📬', 'success');
+      toast('נשלח אימייל אימות. בדוק את תיבת הדואר.', 'success');
     }
   });
 
