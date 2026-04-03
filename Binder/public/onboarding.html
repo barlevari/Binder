@@ -456,7 +456,7 @@
           is_helper:              state.role === 'helper' || state.role === 'both',
           is_seeker:              state.role === 'seeker' || state.role === 'both',
           onboarding_complete:    true,
-          avatar_url:             `https://api.dicebear.com/7.x/avataaars/svg?seed=${uid}`,
+          avatar_url:             null,
         });
 
       if (profileErr) throw profileErr;

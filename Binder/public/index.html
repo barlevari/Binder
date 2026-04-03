@@ -5,11 +5,207 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="בינדר - פלטפורמת עזרה הדדית. מצא מישהו שיעזור לך, או עזור למישהו אחר.">
   <title>בינדר | עזרה הדדית</title>
-  <link rel="stylesheet" href="/css/styles.css?v=4">
-</head>
-<body>
+  <link rel="stylesheet" href="/css/styles.css?v=5">
+  <style>
+    /* ── Landing-specific styles (scoped) ─────────────────────── */
+    .land{--ease:cubic-bezier(0.16,1,0.3,1);overflow-x:hidden}
 
-<!-- NAVBAR -->
+    /* Cursor glow */
+    .cursor-glow{
+      position:fixed;width:600px;height:600px;border-radius:50%;
+      background:radial-gradient(circle,rgba(232,104,90,0.07) 0%,transparent 70%);
+      pointer-events:none;z-index:0;
+      transform:translate(-50%,-50%);
+      transition:left 0.8s var(--ease),top 0.8s var(--ease);
+      will-change:left,top;
+    }
+
+    /* Hero */
+    .land-hero{
+      min-height:100vh;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      position:relative;padding:120px 24px 80px;
+      text-align:center;
+    }
+    .land-hero-tag{
+      display:inline-block;padding:6px 18px;
+      border:1px solid rgba(255,255,255,0.08);border-radius:100px;
+      font-size:0.8rem;color:var(--text-2);letter-spacing:0.04em;
+      margin-bottom:48px;
+      opacity:0;transform:translateY(20px);
+      animation:land-in 0.8s var(--ease) 0.2s forwards;
+    }
+    .land-hero h1{
+      font-family:var(--font-display);
+      font-size:clamp(3.2rem,10vw,7.5rem);
+      line-height:1;letter-spacing:-0.02em;
+      color:var(--text-1);margin:0;
+    }
+    .land-hero h1 .word{
+      display:inline-block;opacity:0;transform:translateY(60px);
+      animation:land-word 1s var(--ease) forwards;
+    }
+    .land-hero h1 .word:nth-child(1){animation-delay:0.3s}
+    .land-hero h1 .word:nth-child(2){animation-delay:0.5s}
+    .land-hero h1 .word:nth-child(3){animation-delay:0.7s}
+    .land-hero h1 .word.glow{
+      background:linear-gradient(135deg,var(--accent),var(--gold));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    @keyframes land-word{to{opacity:1;transform:translateY(0)}}
+    @keyframes land-in{to{opacity:1;transform:translateY(0)}}
+
+    .land-hero-sub{
+      font-size:clamp(1rem,2.5vw,1.25rem);color:var(--text-2);
+      max-width:480px;margin:40px auto 48px;line-height:1.8;
+      font-weight:300;
+      opacity:0;animation:land-in 0.8s var(--ease) 0.9s forwards;
+    }
+    .land-hero-cta{
+      opacity:0;animation:land-in 0.8s var(--ease) 1.1s forwards;
+    }
+    .land-hero-cta a{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:16px 40px;
+      background:var(--accent);color:#fff;
+      border-radius:100px;font-weight:600;font-size:1.05rem;
+      transition:all 0.4s var(--ease);
+      box-shadow:0 0 0 0 rgba(232,104,90,0);
+    }
+    .land-hero-cta a:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 40px rgba(232,104,90,0.3);
+    }
+    .land-scroll-hint{
+      position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+      color:var(--text-3);font-size:0.75rem;letter-spacing:0.08em;
+      display:flex;flex-direction:column;align-items:center;gap:8px;
+      opacity:0;animation:land-in 0.8s var(--ease) 1.5s forwards;
+    }
+    .land-scroll-hint .line{
+      width:1px;height:32px;background:var(--text-3);
+      animation:land-pulse 2s ease-in-out infinite;
+    }
+    @keyframes land-pulse{0%,100%{opacity:0.3;transform:scaleY(0.6)}50%{opacity:1;transform:scaleY(1)}}
+
+    /* Reveal on scroll */
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .reveal.delay-1{transition-delay:0.1s}
+    .reveal.delay-2{transition-delay:0.2s}
+    .reveal.delay-3{transition-delay:0.3s}
+
+    /* Section titles */
+    .land-section{padding:120px 24px;position:relative;z-index:1}
+    .land-label{
+      font-size:0.75rem;color:var(--accent);letter-spacing:0.12em;
+      text-transform:uppercase;font-weight:600;margin-bottom:16px;
+    }
+    .land-title{
+      font-family:var(--font-display);
+      font-size:clamp(2rem,5vw,3.5rem);
+      line-height:1.1;color:var(--text-1);margin:0 0 20px;
+    }
+    .land-desc{font-size:1.05rem;color:var(--text-2);line-height:1.8;max-width:520px;font-weight:300}
+
+    /* Steps */
+    .land-steps{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:24px;max-width:960px;margin:64px auto 0;
+    }
+    .land-step{
+      background:rgba(255,255,255,0.02);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:20px;padding:40px 32px;
+      transition:transform 0.5s var(--ease),box-shadow 0.5s var(--ease);
+      transform-style:preserve-3d;perspective:800px;
+      will-change:transform;
+    }
+    .land-step:hover{
+      box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.08);
+    }
+    .land-step-num{
+      font-family:var(--font-display);font-size:3.5rem;
+      background:linear-gradient(135deg,var(--accent),var(--gold));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;line-height:1;margin-bottom:20px;
+    }
+    .land-step h3{color:var(--text-1);font-size:1.2rem;margin:0 0 12px;font-weight:600}
+    .land-step p{color:var(--text-2);font-size:0.9rem;line-height:1.7;font-weight:300}
+
+    /* Stats */
+    .land-stats{
+      display:flex;justify-content:center;gap:80px;
+      max-width:700px;margin:0 auto;padding:80px 24px;
+      flex-wrap:wrap;
+    }
+    .land-stat{text-align:center}
+    .land-stat-num{
+      font-family:var(--font-display);
+      font-size:clamp(3rem,6vw,4.5rem);
+      color:var(--text-1);line-height:1;
+    }
+    .land-stat-label{font-size:0.85rem;color:var(--text-3);margin-top:8px;font-weight:300}
+
+    /* Features */
+    .land-features{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:1px;max-width:960px;margin:64px auto 0;
+      background:rgba(255,255,255,0.04);border-radius:20px;overflow:hidden;
+      border:1px solid rgba(255,255,255,0.06);
+    }
+    .land-feature{
+      padding:40px 32px;background:var(--bg-base);
+      transition:background 0.4s var(--ease);
+    }
+    .land-feature:hover{background:rgba(255,255,255,0.02)}
+    .land-feature-icon{font-size:2rem;margin-bottom:16px}
+    .land-feature h3{color:var(--text-1);font-size:1.05rem;margin:0 0 8px;font-weight:600}
+    .land-feature p{color:var(--text-2);font-size:0.85rem;line-height:1.7;font-weight:300}
+
+    /* CTA */
+    .land-cta{
+      text-align:center;padding:120px 24px;position:relative;z-index:1;
+    }
+    .land-cta h2{
+      font-family:var(--font-display);
+      font-size:clamp(2.5rem,6vw,4rem);
+      color:var(--text-1);margin:0 0 24px;line-height:1.1;
+    }
+    .land-cta p{color:var(--text-2);font-size:1.05rem;margin-bottom:40px;font-weight:300}
+    .land-cta a{
+      display:inline-flex;padding:18px 48px;
+      background:#fff;color:#08080A;
+      border-radius:100px;font-weight:700;font-size:1.1rem;
+      transition:all 0.4s var(--ease);
+    }
+    .land-cta a:hover{transform:scale(1.05);box-shadow:0 16px 48px rgba(255,255,255,0.1)}
+
+    /* Footer */
+    .land-footer{
+      border-top:1px solid rgba(255,255,255,0.06);
+      padding:32px 24px;display:flex;justify-content:space-between;
+      align-items:center;flex-wrap:wrap;gap:12px;
+      max-width:960px;margin:0 auto;font-size:0.8rem;color:var(--text-3);
+    }
+    .land-footer a{color:var(--text-3);transition:color 0.3s}
+    .land-footer a:hover{color:var(--text-1)}
+
+    /* Divider */
+    .land-div{
+      width:64px;height:1px;margin:0 auto;
+      background:linear-gradient(90deg,transparent,var(--accent),transparent);
+      opacity:0.4;
+    }
+  </style>
+</head>
+<body class="land">
+
+<!-- Cursor glow -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- Navbar -->
 <nav class="landing-navbar" id="landingNav">
   <a href="/" class="navbar-brand">בינדר<span>✦</span></a>
   <div style="display:flex;gap:8px;align-items:center;">
@@ -18,141 +214,184 @@
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="hero-badge">✦ פלטפורמת עזרה הדדית</div>
-    <h1>תן, קבל,<br><span class="highlight">התחבר</span></h1>
-    <p class="hero-sub">
-      בינדר מחברת אנשים שיש להם ידע עם אנשים שצריכים אותו.<br>
-      בחינם. בלי תשלום. רק עזרה אמיתית.
-    </p>
-    <div class="hero-actions">
-      <a href="/auth.html?tab=signup" class="btn-hero-primary">
-        התחל עכשיו — בחינם
-      </a>
-      <a href="#how-it-works" class="btn-hero-secondary">
-        איך זה עובד?
-      </a>
-    </div>
+<!-- Hero -->
+<section class="land-hero">
+  <div class="land-hero-tag">פלטפורמת עזרה הדדית</div>
+  <h1>
+    <span class="word">תן.</span>
+    <span class="word">קבל.</span>
+    <span class="word glow">התחבר.</span>
+  </h1>
+  <p class="land-hero-sub">
+    מחברים אנשים עם ידע לאנשים שצריכים אותו.<br>
+    בחינם. בלי תשלום. רק עזרה אמיתית.
+  </p>
+  <div class="land-hero-cta">
+    <a href="/auth.html?tab=signup">התחל עכשיו</a>
+  </div>
+  <div class="land-scroll-hint">
+    <span>גלול</span>
+    <div class="line"></div>
+  </div>
+</section>
 
-    <!-- Live stats -->
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-number" id="statUsers">—</div>
-        <div class="stat-label">משתמשים</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number" id="statSkills">—</div>
-        <div class="stat-label">נושאי עזרה</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number" id="statMatches">—</div>
-        <div class="stat-label">חיבורים</div>
-      </div>
+<!-- Stats -->
+<div class="land-stats reveal">
+  <div class="land-stat">
+    <div class="land-stat-num" data-count="0" id="statUsers">0</div>
+    <div class="land-stat-label">משתמשים</div>
+  </div>
+  <div class="land-stat">
+    <div class="land-stat-num" data-count="0" id="statSkills">0</div>
+    <div class="land-stat-label">נושאי עזרה</div>
+  </div>
+  <div class="land-stat">
+    <div class="land-stat-num" data-count="0" id="statMatches">0</div>
+    <div class="land-stat-label">חיבורים</div>
+  </div>
+</div>
+
+<div class="land-div"></div>
+
+<!-- How it works -->
+<section class="land-section" id="how-it-works" style="text-align:center;">
+  <div class="reveal">
+    <div class="land-label">איך זה עובד?</div>
+    <div class="land-title">שלושה צעדים. זהו.</div>
+  </div>
+  <div class="land-steps">
+    <div class="land-step reveal delay-1" data-tilt>
+      <div class="land-step-num">01</div>
+      <h3>ספר על עצמך</h3>
+      <p>מה אתה יודע? מה אתה רוצה ללמוד? צור פרופיל ב-2 דקות</p>
+    </div>
+    <div class="land-step reveal delay-2" data-tilt>
+      <div class="land-step-num">02</div>
+      <h3>גלה התאמות</h3>
+      <p>גרור ימינה כשמישהו מעניין אותך. כמו טינדר, רק לידע</p>
+    </div>
+    <div class="land-step reveal delay-3" data-tilt>
+      <div class="land-step-num">03</div>
+      <h3>התחל לדבר</h3>
+      <p>יש התאמה? מעולה. פתחו צ׳אט והתחילו להחליף ידע</p>
     </div>
   </div>
 </section>
 
-<div class="section-divider"></div>
+<div class="land-div"></div>
 
-<!-- HOW IT WORKS -->
-<section class="section" id="how-it-works">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-eyebrow">פשוט וקל</span>
-      <h2>איך בינדר עובד?</h2>
-      <p>שלושה צעדים פשוטים ואתה כבר בפנים</p>
-    </div>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-number">01</div>
-        <h3>יצירת פרופיל</h3>
-        <p>מלא את הפרופיל שלך — מה אתה יכול ללמד ומה אתה רוצה ללמוד</p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">02</div>
-        <h3>גילוי התאמות</h3>
-        <p>גלה אנשים עם מיומנויות משלימות — גרור ימינה למי שמעניין אותך</p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">03</div>
-        <h3>שיחה ועזרה</h3>
-        <p>כשיש התאמה, תוכלו לדבר ולהחליף ידע בצ'אט בזמן אמת</p>
-      </div>
-    </div>
+<!-- Why Binder -->
+<section class="land-section" style="text-align:center;">
+  <div class="reveal">
+    <div class="land-label">למה בינדר?</div>
+    <div class="land-title">לא עוד קורס אונליין</div>
   </div>
-</section>
-
-<div class="section-divider"></div>
-
-<!-- FEATURES -->
-<section class="section">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-eyebrow">למה בינדר?</span>
-      <h2>הפלטפורמה שחשבת שלא קיימת</h2>
-      <p>כי לכולנו יש משהו ללמד וכולנו צריכים ללמוד</p>
+  <div class="land-features reveal">
+    <div class="land-feature">
+      <div class="land-feature-icon">🧠</div>
+      <h3>ידע אמיתי</h3>
+      <p>אנשים אמיתיים עם ניסיון. לא סרטונים, שיחה אנושית</p>
     </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon purple">🧠</div>
-        <h3>ידע אמיתי</h3>
-        <p>מחבר אנשים עם ניסיון אמיתי — לא קורסים, לא וידאו, שיחה אנושית</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon green">🤝</div>
-        <h3>עזרה הדדית</h3>
-        <p>כולם יכולים לעזור וכולם יכולים לקבל עזרה. הכלכלה של הנדיבות</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon yellow">⚡</div>
-        <h3>מהיר ופשוט</h3>
-        <p>צ'אט בזמן אמת, התאמה על בסיס מיומנויות, ממשק נקי ומינימלי</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon red">🔒</div>
-        <h3>פרטיות ואבטחה</h3>
-        <p>הנתונים שלך מוגנים. רק אנשים שהתאמת להם יכולים לפנות אליך</p>
-      </div>
+    <div class="land-feature">
+      <div class="land-feature-icon">🤝</div>
+      <h3>הכל בחינם</h3>
+      <p>אין תשלום. כולם עוזרים, כולם מקבלים. הכלכלה של הנדיבות</p>
+    </div>
+    <div class="land-feature">
+      <div class="land-feature-icon">⚡</div>
+      <h3>מהיר ופשוט</h3>
+      <p>ממשק נקי. גרור, התאם, דבר. בלי מורכבות</p>
+    </div>
+    <div class="land-feature">
+      <div class="land-feature-icon">🔒</div>
+      <h3>פרטי ומאובטח</h3>
+      <p>רק מי שהתאמת לו יכול לפנות אליך. הנתונים שלך מוגנים</p>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<div class="container" style="padding:0 var(--sp-6);">
-  <div class="cta-section">
-    <h2>מוכן להתחיל?</h2>
-    <p>הצטרף לקהילת העזרה ההדדית — כולם עוזרים, כולם מרוויחים</p>
-    <a href="/auth.html?tab=signup" class="btn btn-primary btn-lg">הצטרף בחינם</a>
-  </div>
-</div>
+<section class="land-cta reveal">
+  <h2>מוכן להתחיל?</h2>
+  <p>הצטרף לקהילה. חינם, לתמיד.</p>
+  <a href="/auth.html?tab=signup">הצטרף עכשיו</a>
+</section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-    <div style="font-family:var(--font-display);font-size:1.1rem;">בינדר <span style="color:var(--accent)">✦</span></div>
-    <div>© 2026 בינדר. כל הזכויות שמורות.</div>
-    <div style="display:flex;gap:var(--sp-5);">
-      <a href="#">פרטיות</a>
-      <a href="#">תנאי שימוש</a>
-      <a href="#">יצירת קשר</a>
-    </div>
+<!-- Footer -->
+<footer class="land-footer">
+  <div>בינדר <span style="color:var(--accent)">✦</span></div>
+  <div>© 2026 בינדר</div>
+  <div style="display:flex;gap:20px;">
+    <a href="#">פרטיות</a>
+    <a href="#">תנאי שימוש</a>
   </div>
 </footer>
 
 <div id="toast-container"></div>
 
 <script>
-  // Navbar scroll effect
+  // ── Cursor glow ──────────────────────────────────────────
+  const glow = document.getElementById('cursorGlow');
+  document.addEventListener('mousemove', (e) => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+
+  // ── Navbar scroll ────────────────────────────────────────
   const nav = document.getElementById('landingNav');
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  // Load real stats + update nav for logged-in users
-  import('/js/config.js').then(({ supabase }) => {
+  // ── Scroll reveal ────────────────────────────────────────
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+  // ── 3D tilt on cards ─────────────────────────────────────
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(800px) rotateX(${-y * 8}deg) rotateY(${x * 8}deg) scale(1.02)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+
+  // ── Animated counter ─────────────────────────────────────
+  function animateCount(el, target) {
+    if (target <= 0) { el.textContent = '—'; return; }
+    const duration = 1500;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(ease * target);
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  let statsCounted = false;
+  const statsObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !statsCounted) {
+      statsCounted = true;
+      const u = parseInt(document.getElementById('statUsers').dataset.count) || 0;
+      const s = parseInt(document.getElementById('statSkills').dataset.count) || 0;
+      const m = parseInt(document.getElementById('statMatches').dataset.count) || 0;
+      animateCount(document.getElementById('statUsers'), u);
+      animateCount(document.getElementById('statSkills'), s);
+      animateCount(document.getElementById('statMatches'), m);
+    }
+  }, { threshold: 0.5 });
+  statsObserver.observe(document.querySelector('.land-stats'));
+
+  // ── Load real stats + auth state ─────────────────────────
+  import('/js/config.js').then(({ supabase }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         const btn = document.getElementById('navLoginBtn');
@@ -160,17 +399,19 @@
       }
     });
 
-    async function loadStats() {
-      const fmt = n => n >= 1000 ? (n/1000).toFixed(1).replace('.0','') + 'K' : String(n);
-      const { data, error } = await supabase.rpc('get_platform_stats');
+    supabase.rpc('get_platform_stats').then(({ data, error }) => {
       if (!error && data) {
-        document.getElementById('statUsers').textContent   = fmt(data.users   ?? 0);
-        document.getElementById('statSkills').textContent  = fmt(data.skills  ?? 0);
-        document.getElementById('statMatches').textContent = fmt(data.matches ?? 0);
+        document.getElementById('statUsers').dataset.count = data.users ?? 0;
+        document.getElementById('statSkills').dataset.count = data.skills ?? 0;
+        document.getElementById('statMatches').dataset.count = data.matches ?? 0;
+        // Trigger count if already visible
+        if (statsCounted) {
+          animateCount(document.getElementById('statUsers'), data.users ?? 0);
+          animateCount(document.getElementById('statSkills'), data.skills ?? 0);
+          animateCount(document.getElementById('statMatches'), data.matches ?? 0);
+        }
       }
-    }
-
-    loadStats();
+    });
   });
 </script>
 </body>
