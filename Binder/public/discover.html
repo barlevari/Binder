@@ -3,96 +3,545 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>גילוי | בינדר</title>
+  <title>בינדר</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="/css/styles.css?v=4">
+  <link rel="stylesheet" href="/css/styles.css?v=6">
   <style>
+    /* ── App Shell ──────────────────────────────────────── */
+    body{margin:0;padding:0;overflow:hidden;height:100vh;height:100dvh}
     .hidden{display:none!important}
-    .profile-card { transition: none; }
-    .profile-card.animating-like {
-      animation: swipeRight 0.4s ease forwards;
+
+    .app{display:flex;height:100vh;height:100dvh;overflow:hidden}
+
+    /* ── Sidebar ───────────────────────────────────────── */
+    .sb{
+      width:300px;min-width:300px;height:100%;
+      background:var(--bg-surface);
+      border-left:1px solid var(--border);
+      display:flex;flex-direction:column;
+      z-index:10;
     }
-    .profile-card.animating-pass {
-      animation: swipeLeft 0.4s ease forwards;
+    .sb-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:20px;height:64px;
+      border-bottom:1px solid var(--border);
     }
-    @keyframes swipeRight {
-      to { transform: translateX(120%) rotate(20deg); opacity: 0; }
+    .sb-logo{
+      font-family:var(--font-display);font-size:1.25rem;
+      color:var(--text-1);text-decoration:none;
     }
-    @keyframes swipeLeft {
-      to { transform: translateX(-120%) rotate(-20deg); opacity: 0; }
+    .sb-logo span{color:var(--accent);margin-right:2px}
+    .sb-new{
+      width:34px;height:34px;border-radius:var(--r-sm);
+      border:1px solid var(--border);background:transparent;
+      color:var(--text-2);cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.2s;font-size:1.1rem;
+    }
+    .sb-new:hover{background:var(--bg-hover);color:var(--text-1);border-color:var(--border-md)}
+
+    /* Match list */
+    .sb-list{flex:1;overflow-y:auto;padding:8px 0}
+    .sb-list::-webkit-scrollbar{width:4px}
+    .sb-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+    .sb-item{
+      display:flex;align-items:center;gap:12px;
+      padding:12px 20px;cursor:pointer;
+      transition:background 0.15s;
+      text-decoration:none;color:inherit;
+      border:none;width:100%;background:transparent;
+      font-family:inherit;font-size:inherit;
+      text-align:inherit;
+    }
+    .sb-item:hover{background:var(--bg-hover)}
+    .sb-item.active{background:var(--accent-surface);border-left:2px solid var(--accent)}
+    .sb-item-av{
+      width:40px;height:40px;border-radius:50%;
+      overflow:hidden;flex-shrink:0;background:var(--bg-elevated);
+    }
+    .sb-item-av img{width:100%;height:100%;object-fit:cover}
+    .sb-item-body{flex:1;min-width:0}
+    .sb-item-name{
+      font-size:0.88rem;font-weight:500;color:var(--text-1);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .sb-item-preview{
+      font-size:0.78rem;color:var(--text-3);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      margin-top:2px;
+    }
+    .sb-item-time{
+      font-size:0.68rem;color:var(--text-4);
+      white-space:nowrap;flex-shrink:0;align-self:flex-start;
+      margin-top:2px;
+    }
+
+    .sb-empty{
+      padding:40px 20px;text-align:center;
+      color:var(--text-3);font-size:0.85rem;line-height:1.7;
+    }
+    .sb-empty-icon{font-size:2rem;margin-bottom:12px;opacity:0.5}
+
+    /* Sidebar footer */
+    .sb-foot{
+      border-top:1px solid var(--border);padding:12px 16px;
+    }
+    .sb-foot-link{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;border-radius:var(--r-sm);
+      color:var(--text-2);text-decoration:none;
+      font-size:0.85rem;transition:background 0.15s,color 0.15s;
+    }
+    .sb-foot-link:hover{background:var(--bg-hover);color:var(--text-1)}
+    .sb-foot-av{
+      width:32px;height:32px;border-radius:50%;
+      overflow:hidden;flex-shrink:0;background:var(--bg-elevated);
+    }
+    .sb-foot-av img{width:100%;height:100%;object-fit:cover}
+
+    /* Sidebar overlay (mobile) */
+    .sb-overlay{
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,0.6);z-index:9;
+      opacity:0;transition:opacity 0.3s;
+    }
+    .sb-overlay.show{display:block;opacity:1}
+
+    /* ── Main Panel ────────────────────────────────────── */
+    .main{
+      flex:1;display:flex;flex-direction:column;
+      height:100%;overflow:hidden;position:relative;
+      background:var(--bg-base);
+    }
+
+    /* Top bar */
+    .top{
+      display:flex;align-items:center;gap:12px;
+      padding:0 24px;height:64px;min-height:64px;
+      border-bottom:1px solid var(--border);
+    }
+    .top-hamburger{
+      display:none;width:36px;height:36px;
+      border:none;background:transparent;
+      color:var(--text-2);cursor:pointer;font-size:1.2rem;
+      border-radius:var(--r-sm);
+      align-items:center;justify-content:center;
+    }
+    .top-hamburger:hover{background:var(--bg-hover);color:var(--text-1)}
+    .top-title{font-size:0.9rem;color:var(--text-2);font-weight:400}
+
+    /* Main body */
+    .body{
+      flex:1;overflow:hidden;display:flex;
+      flex-direction:column;position:relative;
+    }
+
+    /* ── Welcome View ──────────────────────────────────── */
+    .welcome{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:40px 24px;text-align:center;
+      animation:fadeUp 0.5s ease;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+    .welcome-logo{
+      font-family:var(--font-display);font-size:2.8rem;
+      color:var(--text-1);margin-bottom:4px;
+    }
+    .welcome-logo span{color:var(--accent)}
+    .welcome-sub{
+      color:var(--text-3);font-size:0.95rem;
+      margin-bottom:40px;line-height:1.7;
+    }
+    .welcome-grid{
+      display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+      max-width:520px;
+    }
+    .welcome-card{
+      background:var(--bg-surface);border:1px solid var(--border);
+      border-radius:var(--r-lg);padding:24px 28px;
+      cursor:pointer;transition:all 0.25s;text-align:center;
+      min-width:150px;flex:1;
+    }
+    .welcome-card:hover{
+      background:var(--bg-elevated);border-color:var(--border-md);
+      transform:translateY(-3px);box-shadow:var(--shadow-md);
+    }
+    .welcome-card-icon{font-size:2rem;margin-bottom:10px}
+    .welcome-card-label{font-size:0.88rem;color:var(--text-1);font-weight:500;margin-bottom:4px}
+    .welcome-card-desc{font-size:0.78rem;color:var(--text-3)}
+
+    /* ── Discover View ─────────────────────────────────── */
+    .discover{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:20px;gap:16px;
+      animation:fadeUp 0.4s ease;
+    }
+    .discover .card-stack{position:relative;width:min(360px,calc(100vw - 48px));height:min(520px,65vh)}
+    .discover .swipe-actions{
+      display:flex;gap:24px;align-items:center;
+      justify-content:center;padding:8px 0;
+    }
+    .discover .empty-state{
+      display:flex;flex-direction:column;align-items:center;
+      justify-content:center;text-align:center;padding:40px;
+    }
+    .discover .empty-state-icon{font-size:3rem;margin-bottom:16px;opacity:0.5}
+    .discover .empty-state h3{color:var(--text-1);font-size:1.1rem;margin-bottom:8px}
+    .discover .empty-state p{color:var(--text-3);font-size:0.88rem}
+
+    /* ── Chat View ─────────────────────────────────────── */
+    .chatview{
+      flex:1;display:flex;flex-direction:column;
+      height:100%;width:100%;
+      animation:fadeUp 0.3s ease;
+    }
+    .cv-head{
+      display:flex;align-items:center;gap:12px;
+      padding:0 24px;height:56px;
+      border-bottom:1px solid var(--border);flex-shrink:0;
+    }
+    .cv-back{
+      width:32px;height:32px;border:none;background:transparent;
+      color:var(--text-2);cursor:pointer;border-radius:var(--r-sm);
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.15s;
+    }
+    .cv-back:hover{background:var(--bg-hover);color:var(--text-1)}
+    .cv-back svg{width:18px;height:18px}
+    .cv-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0}
+    .cv-av img{width:100%;height:100%;object-fit:cover}
+    .cv-name{font-size:0.9rem;font-weight:500;color:var(--text-1);flex:1}
+
+    .cv-msgs{
+      flex:1;overflow-y:auto;padding:16px 24px;
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .cv-msgs::-webkit-scrollbar{width:4px}
+    .cv-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+    .cv-msg{display:flex;flex-direction:column;max-width:72%}
+    .cv-msg.out{align-self:flex-start}
+    .cv-msg.in{align-self:flex-end}
+    .cv-bub{
+      padding:10px 16px;border-radius:18px;
+      font-size:0.88rem;line-height:1.55;word-break:break-word;
+    }
+    .cv-msg.out .cv-bub{
+      background:var(--accent);color:#fff;
+      border-bottom-right-radius:6px;
+    }
+    .cv-msg.in .cv-bub{
+      background:var(--bg-elevated);color:var(--text-1);
+      border-bottom-left-radius:6px;
+    }
+    .cv-time{font-size:0.68rem;color:var(--text-4);margin-top:3px;padding:0 4px}
+    .cv-date{
+      text-align:center;padding:16px 0 8px;
+    }
+    .cv-date span{
+      font-size:0.72rem;color:var(--text-3);
+      background:var(--bg-surface);padding:4px 14px;
+      border-radius:var(--r-full);
+    }
+    .cv-empty-chat{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      text-align:center;padding:40px;color:var(--text-3);
+    }
+    .cv-empty-chat-icon{font-size:2.5rem;margin-bottom:12px;opacity:0.4}
+    .cv-empty-chat p{font-size:0.88rem}
+
+    .cv-foot{padding:12px 24px;border-top:1px solid var(--border);flex-shrink:0}
+    .cv-form{
+      display:flex;align-items:flex-end;gap:8px;
+      background:var(--bg-surface);border:1px solid var(--border);
+      border-radius:24px;padding:4px 4px 4px 16px;
+      transition:border-color 0.2s;
+    }
+    .cv-form:focus-within{border-color:var(--border-md)}
+    .cv-ta{
+      flex:1;background:transparent;border:none;
+      color:var(--text-1);font-size:0.88rem;resize:none;
+      padding:10px 0;min-height:22px;max-height:120px;
+      font-family:inherit;outline:none;line-height:1.5;
+    }
+    .cv-ta::placeholder{color:var(--text-3)}
+    .cv-send{
+      width:36px;height:36px;border-radius:50%;border:none;
+      background:var(--accent);color:#fff;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.2s;flex-shrink:0;
+    }
+    .cv-send:disabled{opacity:0.25;cursor:default}
+    .cv-send:not(:disabled):hover{background:var(--accent-hover)}
+    .cv-send svg{width:16px;height:16px}
+
+    /* ── Match Popup ───────────────────────────────────── */
+    .match-pop{
+      position:fixed;inset:0;z-index:200;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+      animation:fadeUp 0.3s ease;
+    }
+    .match-pop-card{
+      background:var(--bg-surface);border:1px solid var(--border);
+      border-radius:var(--r-2xl);padding:48px 40px;
+      text-align:center;max-width:400px;width:90%;
+    }
+    .match-pop-emoji{font-size:3.5rem;margin-bottom:16px}
+    .match-pop h2{font-family:var(--font-display);font-size:1.5rem;color:var(--text-1);margin:0 0 8px}
+    .match-pop p{color:var(--text-2);font-size:0.9rem;margin-bottom:28px}
+    .match-pop-avs{
+      display:flex;align-items:center;justify-content:center;
+      gap:16px;margin-bottom:28px;
+    }
+    .match-pop-av{
+      width:64px;height:64px;border-radius:50%;overflow:hidden;
+      border:2px solid var(--accent);
+    }
+    .match-pop-av img{width:100%;height:100%;object-fit:cover}
+    .match-pop-heart{font-size:1.5rem;color:var(--accent)}
+
+    /* ── Loading ────────────────────────────────────────── */
+    .page-load{
+      flex:1;display:flex;align-items:center;justify-content:center;
+    }
+
+    /* ── Profile card overrides for discover ────────────── */
+    .profile-card{transition:none}
+    .profile-card.animating-like{animation:swR 0.4s ease forwards}
+    .profile-card.animating-pass{animation:swL 0.4s ease forwards}
+    @keyframes swR{to{transform:translateX(120%) rotate(20deg);opacity:0}}
+    @keyframes swL{to{transform:translateX(-120%) rotate(-20deg);opacity:0}}
+
+    /* ── Mobile ─────────────────────────────────────────── */
+    @media(max-width:768px){
+      .sb{
+        position:fixed;top:0;right:0;bottom:0;
+        width:85vw;max-width:340px;
+        transform:translateX(100%);
+        transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        z-index:100;box-shadow:none;
+      }
+      .sb.open{
+        transform:translateX(0);
+        box-shadow:-8px 0 30px rgba(0,0,0,0.3);
+      }
+      .top-hamburger{display:flex}
+      .discover .card-stack{width:min(340px,calc(100vw - 32px));height:min(480px,60vh)}
+      .cv-head{padding:0 16px}
+      .cv-msgs{padding:12px 16px}
+      .cv-foot{padding:10px 16px}
+    }
+    @media(max-width:380px){
+      .discover .card-stack{height:min(420px,55vh)}
     }
   </style>
 </head>
-<body class="discover-page">
+<body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
-    <a href="/discover.html" class="navbar-brand">בינדר<span>✦</span></a>
-    <div class="navbar-nav">
-      <a href="/discover.html" class="nav-link active">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <span class="nav-text">גילוי</span>
-      </a>
-      <a href="/matches.html" class="nav-link" id="matchesNavLink">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-        <span class="nav-text">התאמות</span>
-      </a>
-      <a href="/profile.html" class="nav-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        <span class="nav-text">פרופיל</span>
+<div class="app" id="app">
+  <!-- ── Sidebar ──────────────────────────────────────── -->
+  <aside class="sb" id="sidebar">
+    <div class="sb-head">
+      <a href="/discover.html" class="sb-logo">בינדר<span>✦</span></a>
+      <button class="sb-new" id="discoverBtn" title="גלה אנשים חדשים">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </button>
+    </div>
+
+    <div class="sb-section hidden" id="sbRequestsSection">בקשות פעילות</div>
+    <div id="sbRequestsList"></div>
+    <div class="sb-list" id="sbList">
+      <div class="sb-empty" id="sbEmpty">
+        <div class="sb-empty-icon">💬</div>
+        <div>עדיין אין התאמות.<br>גלה אנשים חדשים.</div>
+      </div>
+    </div>
+
+    <div class="sb-foot">
+      <a href="/profile.html" class="sb-foot-link">
+        <div class="sb-foot-av" id="myAvFooter"></div>
+        <span id="myNameFooter">הפרופיל שלי</span>
       </a>
     </div>
-  </div>
-</nav>
+  </aside>
 
-<div class="discover-main">
-  <!-- Loading -->
-  <div class="page-loading" id="loadingState">
-    <div class="spinner spinner-dark"></div>
-    <p>טוען אנשים...</p>
-  </div>
+  <!-- Overlay (mobile) -->
+  <div class="sb-overlay" id="sbOverlay"></div>
 
-  <!-- Card Stack -->
-  <div class="card-stack hidden" id="cardStack"></div>
+  <!-- ── Main Panel ───────────────────────────────────── -->
+  <main class="main">
+    <div class="top">
+      <button class="top-hamburger" id="hamburgerBtn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="top-title" id="topTitle">בינדר</span>
+    </div>
 
-  <!-- Empty -->
-  <div class="empty-state hidden" id="emptyState">
-    <div class="empty-state-icon">🎉</div>
-    <h3>זהו, ראית את כולם</h3>
-    <p>חזור מחר, יגיעו חדשים</p>
-    <a href="/matches.html" class="btn btn-primary btn-lg" style="margin-top:16px;">
-      ראה את ההתאמות שלך →
-    </a>
-  </div>
+    <div class="body" id="mainBody">
+      <!-- Loading -->
+      <div class="page-load" id="loadingState">
+        <div class="spinner spinner-dark"></div>
+      </div>
 
-  <!-- Swipe Actions -->
-  <div class="swipe-actions hidden" id="swipeActions">
-    <button class="swipe-btn swipe-btn-pass" id="passBtn" title="דלג (←)">✕</button>
-    <button class="swipe-btn swipe-btn-like" id="likeBtn" title="אהבתי (→)">♥</button>
-  </div>
+      <!-- Welcome View -->
+      <div class="welcome hidden" id="welcomeView">
+        <div class="welcome-logo">בינדר<span> ✦</span></div>
+        <p class="welcome-sub">מצא אנשים שיכולים לעזור לך,<br>או עזור למישהו אחר.</p>
+        <div class="welcome-grid">
+          <div class="welcome-card" id="welcomeDiscoverBtn">
+            <div class="welcome-card-icon">🔍</div>
+            <div class="welcome-card-label">גלה אנשים</div>
+            <div class="welcome-card-desc">מצא התאמות חדשות</div>
+          </div>
+          <div class="welcome-card" id="welcomeAiChatBtn">
+            <div class="welcome-card-icon">✦</div>
+            <div class="welcome-card-label">שוחח עם בינדר</div>
+            <div class="welcome-card-desc">מצא התאמות עם AI</div>
+          </div>
+          <div class="welcome-card" id="welcomeMatchesBtn">
+            <div class="welcome-card-icon">💬</div>
+            <div class="welcome-card-label">ההתאמות שלי</div>
+            <div class="welcome-card-desc" id="welcomeMatchCount">טוען...</div>
+          </div>
+        </div>
+      </div>
 
-  <!-- Keyboard hint -->
-  <p class="text-sm text-gray hidden" id="keyboardHint" style="margin-top:12px;">
-    ← דלג &nbsp;|&nbsp; → אהבתי
-  </p>
+      <!-- Discover View -->
+      <div class="discover hidden" id="discoverView">
+        <div class="card-stack" id="cardStack"></div>
+        <div class="swipe-actions hidden" id="swipeActions">
+          <button class="swipe-btn swipe-btn-pass" id="passBtn" title="דלג">✕</button>
+          <button class="swipe-btn swipe-btn-like" id="likeBtn" title="אהבתי">♥</button>
+        </div>
+        <div class="empty-state hidden" id="emptyState">
+          <div class="empty-state-icon">🎉</div>
+          <h3>זהו, ראית את כולם</h3>
+          <p>חזור מחר, יגיעו חדשים</p>
+        </div>
+      </div>
+
+      <!-- Chat View -->
+      <div class="chatview hidden" id="chatView">
+        <div class="cv-head">
+          <button class="cv-back" id="chatBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <div class="cv-av" id="chatPartnerAv"></div>
+          <span class="cv-name" id="chatPartnerName">טוען...</span>
+        </div>
+        <div class="cv-msgs" id="chatMsgs">
+          <div class="cv-empty-chat" id="chatEmpty">
+            <div class="cv-empty-chat-icon">👋</div>
+            <p>שלח הודעה ראשונה</p>
+          </div>
+        </div>
+        <div class="cv-foot">
+          <form class="cv-form" id="chatForm">
+            <textarea class="cv-ta" id="chatInput" placeholder="הקלד הודעה..." rows="1" maxlength="2000"></textarea>
+            <button type="submit" class="cv-send" id="chatSendBtn" disabled>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- AI Chat View -->
+      <div class="chatview hidden" id="aiChatView">
+        <div class="cv-head">
+          <button class="cv-back" id="aiChatBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <div class="cv-av ai-av">
+            <div class="ai-avatar-icon">✦</div>
+          </div>
+          <span class="cv-name">בינדר AI</span>
+        </div>
+        <div class="cv-msgs" id="aiChatMsgs"></div>
+        <div class="cv-foot">
+          <!-- Suggestion chips (shown when chat is empty) -->
+          <div class="ai-chips" id="aiChips">
+            <button class="ai-chip" data-msg="מצא לי מנטור לתכנות">🎯 מצא לי מנטור</button>
+            <button class="ai-chip" data-msg="אני רוצה ללמד מישהו">🤝 אני רוצה ללמד</button>
+            <button class="ai-chip" data-msg="אני צריך עזרה ב...">💡 אני צריך עזרה</button>
+          </div>
+          <form class="cv-form" id="aiChatForm">
+            <textarea class="cv-ta" id="aiChatInput" placeholder="מה אתה מחפש היום?" rows="1" maxlength="2000"></textarea>
+            <button type="submit" class="cv-send" id="aiChatSendBtn" disabled>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Profile Bubbles View -->
+      <div class="hidden" id="profileBubblesView" style="flex:1;display:flex;flex-direction:column;padding:20px;animation:fadeUp 0.4s ease;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <button class="cv-back" id="bubblesBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <span style="font-size:1rem;font-weight:500;color:var(--text-1);">מפת האישיות שלי</span>
+        </div>
+        <div id="bubbleContainer" style="flex:1;min-height:300px;"></div>
+        <!-- Calibration panel (shown on trait click) -->
+        <div class="bubble-calibration hidden" id="bubbleCalibration">
+          <div class="bubble-cal-header">
+            <span class="bubble-cal-name" id="calTraitName"></span>
+            <button class="bubble-cal-close" id="calCloseBtn">✕</button>
+          </div>
+          <input type="range" class="bubble-cal-slider" id="calSlider" min="0" max="100" value="50">
+          <div class="bubble-cal-actions">
+            <button class="btn btn-ghost btn-sm" id="calDeleteBtn" style="color:var(--red);">מחק תכונה</button>
+            <button class="btn btn-primary btn-sm" id="calSaveBtn">שמור</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Match Request View (candidate sees this) -->
+      <div class="hidden" id="matchRequestView" style="flex:1;display:flex;flex-direction:column;padding:24px;animation:fadeUp 0.4s ease;overflow-y:auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <button class="cv-back" id="matchReqBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <span style="font-size:1rem;font-weight:500;color:var(--text-1);">בקשות ממתינות</span>
+        </div>
+        <div id="pendingRequestsList"></div>
+      </div>
+
+      <!-- Candidate Selection View (requester sees approved candidates) -->
+      <div class="hidden" id="candidateSelectView" style="flex:1;display:flex;flex-direction:column;padding:24px;animation:fadeUp 0.4s ease;overflow-y:auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <button class="cv-back" id="candidateSelectBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <span style="font-size:1rem;font-weight:500;color:var(--text-1);">מועמדים מתאימים</span>
+        </div>
+        <div id="approvedCandidatesList"></div>
+      </div>
+    </div>
+  </main>
 </div>
 
 <!-- Match Popup -->
-<div class="match-popup hidden" id="matchPopup">
-  <div class="match-popup-card">
-    <div class="match-emoji">🎉</div>
+<div class="match-pop hidden" id="matchPopup">
+  <div class="match-pop-card">
+    <div class="match-pop-emoji">🎉</div>
     <h2>יש התאמה!</h2>
-    <p>גם <strong id="matchName"></strong> רוצה לדבר איתך</p>
-    <div class="match-avatars">
-      <div class="avatar avatar-lg" id="myAvatar"></div>
-      <div class="match-heart">♥</div>
-      <div class="avatar avatar-lg" id="theirAvatar"></div>
+    <p>גם <strong id="matchPopName"></strong> רוצה לדבר איתך</p>
+    <div class="match-pop-avs">
+      <div class="match-pop-av" id="matchMyAv"></div>
+      <div class="match-pop-heart">♥</div>
+      <div class="match-pop-av" id="matchTheirAv"></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
-      <button class="btn btn-primary btn-lg" id="chatNowBtn">שלח הודעה</button>
-      <button class="btn btn-ghost" onclick="closeMatch()">המשך לגלות</button>
+      <button class="btn btn-primary btn-lg" id="matchChatBtn" style="width:100%">שלח הודעה</button>
+      <button class="btn btn-ghost" id="matchCloseBtn">המשך לגלות</button>
     </div>
   </div>
 </div>
@@ -100,49 +549,336 @@
 <div id="toast-container"></div>
 
 <script type="module">
-  import { supabase }                       from '/js/config.js';
-  import { toast, avatarUrl, esc, requireOnboarding, formatTime } from '/js/utils.js';
+import { supabase } from '/js/config.js';
+import { toast, esc, avatarUrl, formatTime, formatFullTime, formatDate, requireOnboarding } from '/js/utils.js';
+import { streamChatMessage, loadConversationHistory, getActiveConversation, getUserProfile, createTypingIndicator, createStreamingMessage } from '/js/ai-chat.js';
+import { renderBubbles, renderComparison } from '/js/personality-viz.js';
+import { loadPendingCandidacies, respondToCandidacy, loadMyRequests, loadApprovedCandidates, selectCandidate, renderCandidacyCard, subscribeToCandidacies } from '/js/matching.js';
 
-  (async () => {
+(async () => {
+  // ── Auth ───────────────────────────────────────────────
   const session = await requireOnboarding(supabase);
   if (!session) return;
-
   const ME = session.user.id;
 
-  // ── State ──────────────────────────────────────────────────
-  let cards   = [];
-  let current = 0;
+  // ── State ──────────────────────────────────────────────
   let myProfile = null;
+  let matches = [];
+  let cards = [];
+  let current = 0;
+  let activeView = 'loading'; // loading | welcome | discover | chat | ai-chat | profile-bubbles | match-requests | candidate-select
+  let activeMatchId = null;
+  let chatPartner = null;
+  let chatSubscription = null;
+  let lastDateSep = null;
   let pendingMatchId = null;
+  let aiConversationId = null;
+  let aiIsStreaming = false;
+  let lastAiDateSep = null;
+  let bubbleInstance = null;
 
-  // ── Fetch my profile ───────────────────────────────────────
+  // ── DOM refs ───────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const loadingEl     = $('loadingState');
+  const welcomeEl     = $('welcomeView');
+  const discoverEl    = $('discoverView');
+  const chatViewEl    = $('chatView');
+  const sbList        = $('sbList');
+  const sbEmpty       = $('sbEmpty');
+  const cardStack     = $('cardStack');
+  const swipeActions  = $('swipeActions');
+  const emptyState    = $('emptyState');
+  const chatMsgs      = $('chatMsgs');
+  const chatInput     = $('chatInput');
+  const chatSendBtn   = $('chatSendBtn');
+  const topTitle      = $('topTitle');
+  const aiChatViewEl  = $('aiChatView');
+  const aiChatMsgs    = $('aiChatMsgs');
+  const aiChatInput   = $('aiChatInput');
+  const aiChatSendBtn = $('aiChatSendBtn');
+
+  // ── Load my profile ────────────────────────────────────
   const { data: myProf } = await supabase
     .from('binder_profiles')
     .select('*, binder_offer_skills(skill_name), binder_need_skills(skill_name)')
-    .eq('id', ME)
-    .single();
+    .eq('id', ME).single();
 
   myProfile = myProf;
 
-  // ── Load candidates ────────────────────────────────────────
+  // Set footer avatar
+  const footerAv = $('myAvFooter');
+  footerAv.innerHTML = `<img src="${esc(myProf?.avatar_url || avatarUrl(ME))}" alt="אני">`;
+  $('myNameFooter').textContent = myProf?.full_name || 'הפרופיל שלי';
+
+  // ── View management ────────────────────────────────────
+  function showView(view) {
+    activeView = view;
+    loadingEl.classList.add('hidden');
+    welcomeEl.classList.add('hidden');
+    discoverEl.classList.add('hidden');
+    chatViewEl.classList.add('hidden');
+    aiChatViewEl.classList.add('hidden');
+    $('profileBubblesView').classList.add('hidden');
+    $('matchRequestView').classList.add('hidden');
+    $('candidateSelectView').classList.add('hidden');
+
+    if (view === 'loading') loadingEl.classList.remove('hidden');
+    if (view === 'welcome') { welcomeEl.classList.remove('hidden'); topTitle.textContent = 'בינדר'; }
+    if (view === 'discover') { discoverEl.classList.remove('hidden'); topTitle.textContent = 'גילוי'; }
+    if (view === 'chat') { chatViewEl.classList.remove('hidden'); }
+    if (view === 'ai-chat') { aiChatViewEl.classList.remove('hidden'); topTitle.textContent = 'בינדר AI'; document.title = 'בינדר AI'; }
+    if (view === 'profile-bubbles') { $('profileBubblesView').classList.remove('hidden'); topTitle.textContent = 'מפת אישיות'; }
+    if (view === 'match-requests') { $('matchRequestView').classList.remove('hidden'); topTitle.textContent = 'בקשות ממתינות'; }
+    if (view === 'candidate-select') { $('candidateSelectView').classList.remove('hidden'); topTitle.textContent = 'מועמדים מתאימים'; }
+
+    // Update sidebar active item
+    document.querySelectorAll('.sb-item').forEach(el => {
+      el.classList.toggle('active', view === 'chat' && el.dataset.matchId === activeMatchId);
+    });
+
+    // Update URL
+    if (view === 'chat' && activeMatchId) {
+      history.replaceState(null, '', `?match=${activeMatchId}`);
+    } else if (view === 'discover') {
+      history.replaceState(null, '', '?mode=discover');
+    } else {
+      history.replaceState(null, '', '/discover.html');
+    }
+
+    // Close mobile sidebar
+    closeSidebar();
+  }
+
+  // ── Sidebar: load matches ──────────────────────────────
+  async function loadSidebarMatches() {
+    const { data: matchRows, error } = await supabase
+      .from('binder_matches')
+      .select('id, created_at, user1_id, user2_id')
+      .or(`user1_id.eq.${ME},user2_id.eq.${ME}`)
+      .order('created_at', { ascending: false });
+
+    if (error) { console.error('matches error', error); return; }
+    if (!matchRows || matchRows.length === 0) {
+      matches = [];
+      sbEmpty.classList.remove('hidden');
+      $('welcomeMatchCount').textContent = 'אין עדיין';
+      return;
+    }
+
+    sbEmpty.classList.add('hidden');
+
+    // Enrich with partner profiles + last message
+    const enriched = await Promise.all(matchRows.map(async (m) => {
+      const partnerId = m.user1_id === ME ? m.user2_id : m.user1_id;
+      const [{ data: partner }, { data: lastMsg }] = await Promise.all([
+        supabase.from('binder_profiles')
+          .select('id, full_name, avatar_url, location')
+          .eq('id', partnerId).single(),
+        supabase.from('binder_messages')
+          .select('content, created_at, sender_id')
+          .eq('match_id', m.id)
+          .order('created_at', { ascending: false })
+          .limit(1).maybeSingle(),
+      ]);
+      return { ...m, partner, lastMsg };
+    }));
+
+    matches = enriched;
+    $('welcomeMatchCount').textContent = `${matches.length} התאמות`;
+    renderSidebar();
+  }
+
+  function renderSidebar() {
+    // Keep sbEmpty hidden
+    sbEmpty.classList.add('hidden');
+
+    // Remove old items (keep sbEmpty)
+    sbList.querySelectorAll('.sb-item').forEach(el => el.remove());
+
+    matches.forEach(m => {
+      const p = m.partner;
+      const msg = m.lastMsg;
+      const preview = msg
+        ? `${msg.sender_id === ME ? 'אתה: ' : ''}${msg.content.slice(0, 50)}${msg.content.length > 50 ? '...' : ''}`
+        : 'התאמה חדשה';
+
+      const btn = document.createElement('button');
+      btn.className = `sb-item${activeMatchId === m.id ? ' active' : ''}`;
+      btn.dataset.matchId = m.id;
+      btn.innerHTML = `
+        <div class="sb-item-av">
+          <img src="${esc(p?.avatar_url || avatarUrl(p?.id || m.id))}" alt="${esc(p?.full_name || '?')}"
+               onerror="this.src='${avatarUrl(m.id)}'">
+        </div>
+        <div class="sb-item-body">
+          <div class="sb-item-name">${esc(p?.full_name || 'משתמש')}</div>
+          <div class="sb-item-preview">${esc(preview)}</div>
+        </div>
+        <span class="sb-item-time">${formatTime(msg?.created_at || m.created_at)}</span>
+      `;
+      btn.addEventListener('click', () => openChat(m.id));
+      sbList.appendChild(btn);
+    });
+  }
+
+  // ── Chat: open ─────────────────────────────────────────
+  async function openChat(matchId) {
+    activeMatchId = matchId;
+
+    // Find match data
+    const match = matches.find(m => m.id === matchId);
+    if (!match) return;
+
+    chatPartner = match.partner;
+    $('chatPartnerName').textContent = chatPartner?.full_name || 'משתמש';
+    $('chatPartnerAv').innerHTML = `<img src="${esc(chatPartner?.avatar_url || avatarUrl(chatPartner?.id || matchId))}" alt="${esc(chatPartner?.full_name || '')}">`;
+    topTitle.textContent = chatPartner?.full_name || 'צ\'אט';
+    document.title = `${chatPartner?.full_name || 'צ\'אט'} | בינדר`;
+
+    showView('chat');
+    await loadChatMessages(matchId);
+    subscribeToChatMessages(matchId);
+  }
+
+  // ── Chat: load messages ────────────────────────────────
+  async function loadChatMessages(matchId) {
+    chatMsgs.innerHTML = '';
+    lastDateSep = null;
+
+    const { data: msgs, error } = await supabase
+      .from('binder_messages')
+      .select('id, sender_id, content, created_at, read_at')
+      .eq('match_id', matchId)
+      .order('created_at', { ascending: true });
+
+    if (error) { toast('שגיאה בטעינת הודעות', 'error'); return; }
+
+    if (!msgs || msgs.length === 0) {
+      chatMsgs.innerHTML = `<div class="cv-empty-chat"><div class="cv-empty-chat-icon">👋</div><p>שלח הודעה ראשונה</p></div>`;
+      scrollChatBottom();
+      return;
+    }
+
+    msgs.forEach(msg => appendChatMessage(msg, false));
+    scrollChatBottom();
+
+    // Mark unread
+    const unread = msgs.filter(m => m.sender_id !== ME && !m.read_at).map(m => m.id);
+    if (unread.length > 0) {
+      supabase.from('binder_messages')
+        .update({ read_at: new Date().toISOString() })
+        .in('id', unread).then();
+    }
+  }
+
+  function appendChatMessage(msg, scroll = true) {
+    // Remove empty chat placeholder
+    const emptyChat = chatMsgs.querySelector('.cv-empty-chat');
+    if (emptyChat) emptyChat.remove();
+
+    const dateStr = formatDate(msg.created_at);
+    if (dateStr !== lastDateSep) {
+      lastDateSep = dateStr;
+      const sep = document.createElement('div');
+      sep.className = 'cv-date';
+      sep.innerHTML = `<span>${esc(dateStr)}</span>`;
+      chatMsgs.appendChild(sep);
+    }
+
+    const isMe = msg.sender_id === ME;
+    const div = document.createElement('div');
+    div.className = `cv-msg ${isMe ? 'out' : 'in'}`;
+    div.dataset.msgId = msg.id;
+    div.innerHTML = `
+      <div class="cv-bub">${esc(msg.content).replace(/\n/g, '<br>')}</div>
+      <div class="cv-time">${formatFullTime(msg.created_at)}${isMe && msg.read_at ? ' ✓✓' : ''}</div>
+    `;
+    chatMsgs.appendChild(div);
+    if (scroll) scrollChatBottom();
+  }
+
+  function scrollChatBottom() {
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+
+  // ── Chat: subscribe ────────────────────────────────────
+  function subscribeToChatMessages(matchId) {
+    if (chatSubscription) { chatSubscription.unsubscribe(); chatSubscription = null; }
+    chatSubscription = supabase
+      .channel(`chat:${matchId}`)
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'binder_messages', filter: `match_id=eq.${matchId}` },
+        (payload) => {
+          if (payload.new.sender_id === ME) return;
+          appendChatMessage(payload.new);
+          supabase.from('binder_messages')
+            .update({ read_at: new Date().toISOString() })
+            .eq('id', payload.new.id).then();
+        }
+      ).subscribe();
+  }
+
+  // ── Chat: send message ─────────────────────────────────
+  async function sendChatMessage() {
+    const content = chatInput.value.trim();
+    if (!content || !activeMatchId) return;
+    if (content.length > 2000) { toast('הודעה ארוכה מדי', 'warning'); return; }
+
+    chatInput.value = '';
+    adjustTextarea();
+    chatSendBtn.disabled = true;
+
+    // Optimistic
+    const opt = {
+      id: `opt-${Date.now()}`, sender_id: ME, content,
+      created_at: new Date().toISOString(), read_at: null,
+    };
+    appendChatMessage(opt);
+
+    const { error } = await supabase
+      .from('binder_messages')
+      .insert({ match_id: activeMatchId, sender_id: ME, content })
+      .select().single();
+
+    if (error) {
+      toast('שגיאה בשליחת הודעה', 'error');
+      chatMsgs.querySelector(`[data-msg-id="${opt.id}"]`)?.remove();
+      chatInput.value = content;
+    }
+
+    // Refresh sidebar preview
+    loadSidebarMatches();
+  }
+
+  function adjustTextarea() {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+  }
+
+  // Chat form handlers
+  $('chatForm').addEventListener('submit', (e) => { e.preventDefault(); sendChatMessage(); });
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+  });
+  chatInput.addEventListener('input', () => {
+    chatSendBtn.disabled = !chatInput.value.trim();
+    adjustTextarea();
+  });
+
+  // ── Discover: load candidates ──────────────────────────
   async function loadCandidates() {
-    // Get IDs we already swiped
     const { data: swiped } = await supabase
       .from('binder_swipes')
       .select('swiped_id')
       .eq('swiper_id', ME);
 
     const swipedIds = new Set((swiped || []).map(s => s.swiped_id));
-    swipedIds.add(ME); // exclude self
+    swipedIds.add(ME);
 
-    // Load active profiles
     const { data: profiles, error } = await supabase
       .from('binder_profiles')
-      .select(`
-        id, full_name, age, gender, location, bio, avatar_url,
-        binder_offer_skills (skill_name),
-        binder_need_skills  (skill_name)
-      `)
+      .select(`id, full_name, age, gender, location, bio, avatar_url,
+        binder_offer_skills(skill_name), binder_need_skills(skill_name)`)
       .eq('is_active', true)
       .eq('onboarding_complete', true)
       .neq('id', ME)
@@ -155,43 +891,30 @@
     renderCards();
   }
 
-  // ── Render card stack ──────────────────────────────────────
   function renderCards() {
-    const stack   = document.getElementById('cardStack');
-    const loading = document.getElementById('loadingState');
-    const empty   = document.getElementById('emptyState');
-    const actions = document.getElementById('swipeActions');
-    const hint    = document.getElementById('keyboardHint');
-
-    loading.classList.add('hidden');
-
-    if (cards.length === 0) {
-      stack.classList.add('hidden');
-      actions.classList.add('hidden');
-      hint.classList.add('hidden');
-      empty.classList.remove('hidden');
+    if (cards.length === 0 || current >= cards.length) {
+      cardStack.classList.add('hidden');
+      swipeActions.classList.add('hidden');
+      emptyState.classList.remove('hidden');
       return;
     }
 
-    empty.classList.add('hidden');
-    stack.classList.remove('hidden');
-    actions.classList.remove('hidden');
-    hint.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+    cardStack.classList.remove('hidden');
+    swipeActions.classList.remove('hidden');
+    cardStack.innerHTML = '';
 
-    stack.innerHTML = '';
-
-    // Render top 3 cards (back to front order)
     const visible = cards.slice(current, current + 3);
     visible.reverse().forEach((profile, reverseIdx) => {
-      const idx  = visible.length - 1 - reverseIdx;
+      const idx = visible.length - 1 - reverseIdx;
       const card = buildCard(profile, idx);
-      stack.appendChild(card);
+      cardStack.appendChild(card);
     });
   }
 
   function buildCard(profile, stackPos) {
     const offerSkills = (profile.binder_offer_skills || []).slice(0, 4);
-    const needSkills  = (profile.binder_need_skills  || []).slice(0, 3);
+    const needSkills = (profile.binder_need_skills || []).slice(0, 3);
 
     const card = document.createElement('div');
     card.className = `profile-card ${stackPos === 1 ? 'next' : stackPos === 2 ? 'third' : ''}`;
@@ -200,93 +923,62 @@
     card.innerHTML = `
       <div class="swipe-overlay like-overlay"><span class="swipe-label">אהבתי ♥</span></div>
       <div class="swipe-overlay pass-overlay" style="justify-content:flex-end;"><span class="swipe-label pass-label">דלג ✕</span></div>
-
       <div class="profile-card-photo">
-        <img src="${esc(profile.avatar_url || avatarUrl(profile.id))}"
-             alt="${esc(profile.full_name)}"
+        <img src="${esc(profile.avatar_url || avatarUrl(profile.id))}" alt="${esc(profile.full_name)}"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="profile-card-photo-placeholder" style="display:none;">
           ${profile.gender === 'female' ? '👩' : '👨'}
         </div>
       </div>
-
       <div class="profile-card-info">
         <div class="profile-card-name-row">
           <span class="profile-card-name">${esc(profile.full_name)}</span>
-          <span class="profile-card-age">${profile.age}</span>
+          <span class="profile-card-age">${profile.age || ''}</span>
         </div>
-        <div class="profile-card-location">📍 ${esc(profile.location)}</div>
-
+        <div class="profile-card-location">📍 ${esc(profile.location || '')}</div>
         ${offerSkills.length > 0 ? `
           <div class="profile-card-skills">
             <div class="profile-card-skills-label">יכול/ה ללמד</div>
-            <div class="tags-wrap">
-              ${offerSkills.map(s => `<span class="tag tag-primary">${esc(s.skill_name)}</span>`).join('')}
-            </div>
-          </div>
-        ` : ''}
-
+            <div class="tags-wrap">${offerSkills.map(s => `<span class="tag tag-primary">${esc(s.skill_name)}</span>`).join('')}</div>
+          </div>` : ''}
         ${needSkills.length > 0 ? `
           <div class="profile-card-skills" style="margin-top:8px;">
             <div class="profile-card-skills-label">רוצה ללמוד</div>
-            <div class="tags-wrap">
-              ${needSkills.map(s => `<span class="tag tag-success">${esc(s.skill_name)}</span>`).join('')}
-            </div>
-          </div>
-        ` : ''}
+            <div class="tags-wrap">${needSkills.map(s => `<span class="tag tag-success">${esc(s.skill_name)}</span>`).join('')}</div>
+          </div>` : ''}
       </div>
     `;
 
-    // Drag to swipe
-    if (stackPos === 0) {
-      addDragBehavior(card, profile);
-    }
-
+    if (stackPos === 0) addDragBehavior(card, profile);
     return card;
   }
 
-  // ── Drag/Touch behavior ─────────────────────────────────────
+  // ── Drag/Touch swiping ─────────────────────────────────
   function addDragBehavior(card, profile) {
     let startX = 0, curX = 0, isDragging = false;
 
-    function onStart(x) {
-      startX = curX = x;
-      isDragging = true;
-      card.style.transition = 'none';
-    }
+    function onStart(x) { startX = curX = x; isDragging = true; card.style.transition = 'none'; }
 
     function onMove(x) {
       if (!isDragging) return;
       curX = x;
-      const diff  = curX - startX;
-      const angle = diff * 0.06;
-      card.style.transform = `translateX(${diff}px) rotate(${angle}deg)`;
-
-      // Show overlays
-      const likeOverlay = card.querySelector('.like-overlay');
-      const passOverlay = card.querySelector('.pass-overlay');
+      const diff = curX - startX;
+      card.style.transform = `translateX(${diff}px) rotate(${diff * 0.06}deg)`;
+      const likeOv = card.querySelector('.like-overlay');
+      const passOv = card.querySelector('.pass-overlay');
       const pct = Math.min(Math.abs(diff) / 80, 1);
-
-      if (diff > 10) {
-        likeOverlay.style.opacity = pct;
-        passOverlay.style.opacity = 0;
-      } else if (diff < -10) {
-        passOverlay.style.opacity = pct;
-        likeOverlay.style.opacity = 0;
-      } else {
-        likeOverlay.style.opacity = 0;
-        passOverlay.style.opacity = 0;
-      }
+      if (diff > 10) { likeOv.style.opacity = pct; passOv.style.opacity = 0; }
+      else if (diff < -10) { passOv.style.opacity = pct; likeOv.style.opacity = 0; }
+      else { likeOv.style.opacity = 0; passOv.style.opacity = 0; }
     }
 
     function onEnd() {
       if (!isDragging) return;
       isDragging = false;
       card.style.transition = '';
-
       const diff = curX - startX;
-      if (diff > 80)       { doSwipe('like', profile, card); }
-      else if (diff < -80) { doSwipe('pass', profile, card); }
+      if (diff > 80) doSwipe('like', profile, card);
+      else if (diff < -80) doSwipe('pass', profile, card);
       else {
         card.style.transform = '';
         card.querySelector('.like-overlay').style.opacity = 0;
@@ -294,32 +986,24 @@
       }
     }
 
-    // Mouse
-    card.addEventListener('mousedown',  e => { if (e.button === 0) onStart(e.clientX); });
+    card.addEventListener('mousedown', e => { if (e.button === 0) onStart(e.clientX); });
     window.addEventListener('mousemove', e => onMove(e.clientX));
-    window.addEventListener('mouseup',   () => onEnd());
-
-    // Touch
+    window.addEventListener('mouseup', () => onEnd());
     card.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
-    card.addEventListener('touchmove',  e => onMove(e.touches[0].clientX), { passive: true });
-    card.addEventListener('touchend',   () => onEnd());
+    card.addEventListener('touchmove', e => onMove(e.touches[0].clientX), { passive: true });
+    card.addEventListener('touchend', () => onEnd());
   }
 
-  // ── Swipe action ───────────────────────────────────────────
+  // ── Swipe action ───────────────────────────────────────
   async function doSwipe(direction, profile, card) {
-    // Animate
     card.classList.add(direction === 'like' ? 'animating-like' : 'animating-pass');
 
-    // Record in DB
     const { error } = await supabase
       .from('binder_swipes')
       .insert({ swiper_id: ME, swiped_id: profile.id, direction });
 
-    if (error && !error.message.includes('duplicate')) {
-      toast('שגיאה', 'error');
-    }
+    if (error && !error.message.includes('duplicate')) toast('שגיאה', 'error');
 
-    // Check for match (use nested and() in a single or() to find match between both users)
     if (direction === 'like' && !error) {
       const { data: matchData } = await supabase
         .from('binder_matches')
@@ -329,69 +1013,500 @@
 
       if (matchData) {
         pendingMatchId = matchData.id;
-        showMatchPopup(profile);
+        showMatchPopup(profile, matchData.id);
+        // Refresh sidebar
+        await loadSidebarMatches();
       }
     }
 
-    // Advance
-    setTimeout(() => {
-      current++;
-      renderCards();
-    }, 350);
+    setTimeout(() => { current++; renderCards(); }, 350);
   }
 
-  // ── Buttons ────────────────────────────────────────────────
-  document.getElementById('passBtn').addEventListener('click', () => {
+  // ── Swipe buttons ──────────────────────────────────────
+  $('passBtn').addEventListener('click', () => {
     if (current >= cards.length) return;
-    const profile = cards[current];
-    const card    = document.querySelector('.profile-card:not(.next):not(.third)');
-    if (card) doSwipe('pass', profile, card);
+    const card = cardStack.querySelector('.profile-card:not(.next):not(.third)');
+    if (card) doSwipe('pass', cards[current], card);
+  });
+  $('likeBtn').addEventListener('click', () => {
+    if (current >= cards.length) return;
+    const card = cardStack.querySelector('.profile-card:not(.next):not(.third)');
+    if (card) doSwipe('like', cards[current], card);
   });
 
-  document.getElementById('likeBtn').addEventListener('click', () => {
-    if (current >= cards.length) return;
-    const profile = cards[current];
-    const card    = document.querySelector('.profile-card:not(.next):not(.third)');
-    if (card) doSwipe('like', profile, card);
-  });
-
-  // ── Keyboard shortcuts ─────────────────────────────────────
+  // Keyboard shortcuts (only when in discover view)
   document.addEventListener('keydown', (e) => {
-    if (current >= cards.length) return;
+    if (activeView !== 'discover' || current >= cards.length) return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      const profile = cards[current];
-      const card    = document.querySelector('.profile-card:not(.next):not(.third)');
+      const card = cardStack.querySelector('.profile-card:not(.next):not(.third)');
       if (!card) return;
-      const dir = e.key === 'ArrowRight' ? 'like' : 'pass';
-      doSwipe(dir, profile, card);
+      doSwipe(e.key === 'ArrowRight' ? 'like' : 'pass', cards[current], card);
     }
   });
 
-  // ── Match popup ────────────────────────────────────────────
-  function showMatchPopup(profile) {
-    document.getElementById('matchName').textContent = profile.full_name;
-
-    const myAvatarEl    = document.getElementById('myAvatar');
-    const theirAvatarEl = document.getElementById('theirAvatar');
-
-    myAvatarEl.innerHTML    = `<img src="${avatarUrl(ME)}" alt="אני" style="width:100%;height:100%;object-fit:cover;">`;
-    theirAvatarEl.innerHTML = `<img src="${esc(profile.avatar_url || avatarUrl(profile.id))}" alt="${esc(profile.full_name)}" style="width:100%;height:100%;object-fit:cover;">`;
-
-    document.getElementById('chatNowBtn').onclick = () => {
-      window.location.href = `/chat.html?match=${pendingMatchId}`;
+  // ── Match popup ────────────────────────────────────────
+  function showMatchPopup(profile, matchId) {
+    $('matchPopName').textContent = profile.full_name;
+    $('matchMyAv').innerHTML = `<img src="${esc(myProfile?.avatar_url || avatarUrl(ME))}" alt="אני">`;
+    $('matchTheirAv').innerHTML = `<img src="${esc(profile.avatar_url || avatarUrl(profile.id))}" alt="${esc(profile.full_name)}">`;
+    $('matchChatBtn').onclick = () => {
+      $('matchPopup').classList.add('hidden');
+      openChat(matchId);
     };
-
-    document.getElementById('matchPopup').classList.remove('hidden');
+    $('matchCloseBtn').onclick = () => {
+      $('matchPopup').classList.add('hidden');
+      pendingMatchId = null;
+    };
+    $('matchPopup').classList.remove('hidden');
   }
 
-  window.closeMatch = function() {
-    document.getElementById('matchPopup').classList.add('hidden');
-    pendingMatchId = null;
-  };
+  // ── Chat back button ──────────────────────────────────
+  $('chatBackBtn').addEventListener('click', () => {
+    if (chatSubscription) { chatSubscription.unsubscribe(); chatSubscription = null; }
+    activeMatchId = null;
+    document.title = 'בינדר';
+    if (matches.length > 0) showView('welcome');
+    else showView('discover');
+  });
 
-  // ── Init ───────────────────────────────────────────────────
+  // ── Navigation buttons ─────────────────────────────────
+  $('discoverBtn').addEventListener('click', () => {
+    showView('discover');
+    if (cards.length === 0 && current === 0) loadCandidates();
+  });
+
+  $('welcomeDiscoverBtn').addEventListener('click', () => {
+    showView('discover');
+    if (cards.length === 0 && current === 0) loadCandidates();
+  });
+
+  $('welcomeMatchesBtn').addEventListener('click', () => {
+    if (matches.length > 0) {
+      openChat(matches[0].id);
+    } else {
+      showView('discover');
+      loadCandidates();
+    }
+  });
+
+  // ── AI Chat ─────────────────────────────────────────────
+  async function openAiChat() {
+    showView('ai-chat');
+    aiConversationId = await getActiveConversation();
+
+    aiChatMsgs.innerHTML = '';
+    lastAiDateSep = null;
+
+    if (aiConversationId) {
+      const history = await loadConversationHistory(aiConversationId);
+      history.forEach(msg => appendAiMessage(msg));
+      $('aiChips').classList.add('hidden');
+    } else {
+      $('aiChips').classList.remove('hidden');
+    }
+
+    scrollAiChatBottom();
+  }
+
+  function appendAiMessage(msg) {
+    const dateStr = formatDate(msg.created_at);
+    if (dateStr !== lastAiDateSep) {
+      lastAiDateSep = dateStr;
+      const sep = document.createElement('div');
+      sep.className = 'cv-date';
+      sep.innerHTML = `<span>${esc(dateStr)}</span>`;
+      aiChatMsgs.appendChild(sep);
+    }
+
+    const isUser = msg.role === 'user';
+    const div = document.createElement('div');
+    div.className = `cv-msg ${isUser ? 'out' : 'in'}`;
+    div.innerHTML = `
+      <div class="cv-bub${isUser ? '' : ' ai-bub'}">${esc(msg.content).replace(/\n/g, '<br>')}</div>
+      <div class="cv-time">${formatFullTime(msg.created_at)}</div>
+    `;
+    aiChatMsgs.appendChild(div);
+  }
+
+  async function sendAiMessage(text) {
+    if (!text || aiIsStreaming) return;
+
+    const content = text.trim();
+    if (!content) return;
+
+    aiIsStreaming = true;
+    aiChatInput.value = '';
+    aiChatSendBtn.disabled = true;
+    $('aiChips').classList.add('hidden');
+    adjustAiTextarea();
+
+    appendAiMessage({
+      role: 'user',
+      content,
+      created_at: new Date().toISOString(),
+    });
+    scrollAiChatBottom();
+
+    const typingEl = createTypingIndicator();
+    aiChatMsgs.appendChild(typingEl);
+    scrollAiChatBottom();
+
+    let streamMsg = null;
+
+    await streamChatMessage(content, aiConversationId, {
+      onText(text) {
+        if (!streamMsg) {
+          typingEl.remove();
+          streamMsg = createStreamingMessage();
+          aiChatMsgs.appendChild(streamMsg.element);
+        }
+        streamMsg.appendText(text);
+        scrollAiChatBottom();
+      },
+      onDone(event) {
+        if (streamMsg) {
+          streamMsg.finalize(new Date().toISOString());
+        } else {
+          typingEl.remove();
+        }
+        aiConversationId = event.conversation_id;
+        aiIsStreaming = false;
+        aiChatSendBtn.disabled = !aiChatInput.value.trim();
+      },
+      onProfileGenerated(event) {
+        const notif = document.createElement('div');
+        notif.className = 'ai-notification';
+        notif.innerHTML = `
+          <span class="ai-notif-icon">✨</span>
+          <span>יצרתי לך פרופיל אישיות! <button class="ai-notif-link" onclick="document.getElementById('viewProfileBtn')?.click()">לצפייה</button></span>
+        `;
+        aiChatMsgs.appendChild(notif);
+        scrollAiChatBottom();
+      },
+      onSearchStarted(event) {
+        const notif = document.createElement('div');
+        notif.className = 'ai-notification';
+        notif.innerHTML = `
+          <span class="ai-notif-icon">🔍</span>
+          <span>מחפש לך אנשים מתאימים...</span>
+        `;
+        aiChatMsgs.appendChild(notif);
+        scrollAiChatBottom();
+        loadSidebarRequests();
+      },
+      onError(message) {
+        typingEl.remove();
+        if (streamMsg) streamMsg.finalize(new Date().toISOString());
+        toast(message, 'error');
+        aiIsStreaming = false;
+        aiChatSendBtn.disabled = !aiChatInput.value.trim();
+      },
+    });
+  }
+
+  function scrollAiChatBottom() {
+    aiChatMsgs.scrollTop = aiChatMsgs.scrollHeight;
+  }
+
+  function adjustAiTextarea() {
+    aiChatInput.style.height = 'auto';
+    aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 120) + 'px';
+  }
+
+  $('aiChatForm').addEventListener('submit', (e) => { e.preventDefault(); sendAiMessage(aiChatInput.value); });
+  aiChatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAiMessage(aiChatInput.value); }
+  });
+  aiChatInput.addEventListener('input', () => {
+    aiChatSendBtn.disabled = !aiChatInput.value.trim() || aiIsStreaming;
+    adjustAiTextarea();
+  });
+
+  document.querySelectorAll('.ai-chip').forEach(chip => {
+    chip.addEventListener('click', () => { sendAiMessage(chip.dataset.msg); });
+  });
+
+  $('aiChatBackBtn').addEventListener('click', () => {
+    showView('welcome');
+    document.title = 'בינדר';
+  });
+
+  $('welcomeAiChatBtn').addEventListener('click', () => openAiChat());
+
+  // ── Profile Bubbles ─────────────────────────────────────
+  async function openProfileBubbles() {
+    showView('profile-bubbles');
+    const profile = await getUserProfile(ME);
+    if (profile && profile.traits) {
+      if (bubbleInstance) bubbleInstance.destroy();
+      bubbleInstance = renderBubbles($('bubbleContainer'), profile.traits, {
+        interactive: true,
+        onTraitClick(trait) {
+          $('calTraitName').textContent = trait.name;
+          $('calSlider').value = Math.round(trait.weight * 100);
+          $('bubbleCalibration').classList.remove('hidden');
+          $('bubbleCalibration').dataset.traitId = trait.id;
+        },
+      });
+    }
+  }
+
+  $('bubblesBackBtn').addEventListener('click', () => {
+    if (bubbleInstance) { bubbleInstance.destroy(); bubbleInstance = null; }
+    showView('ai-chat');
+  });
+
+  $('calCloseBtn').addEventListener('click', () => {
+    $('bubbleCalibration').classList.add('hidden');
+  });
+
+  $('calSaveBtn').addEventListener('click', async () => {
+    const traitId = parseInt($('bubbleCalibration').dataset.traitId);
+    const newWeight = parseInt($('calSlider').value) / 100;
+    const profile = await getUserProfile(ME);
+    if (!profile) return;
+
+    const updatedTraits = profile.traits.map((t, i) =>
+      i === traitId ? { ...t, weight: newWeight } : t
+    );
+
+    await supabase.from('binder_personality_profiles')
+      .update({ traits: updatedTraits, version: (profile.version || 1) + 1, updated_at: new Date().toISOString() })
+      .eq('user_id', ME);
+
+    $('bubbleCalibration').classList.add('hidden');
+    openProfileBubbles();
+    toast('התכונה עודכנה', 'success');
+  });
+
+  $('calDeleteBtn').addEventListener('click', async () => {
+    const traitId = parseInt($('bubbleCalibration').dataset.traitId);
+    const profile = await getUserProfile(ME);
+    if (!profile) return;
+
+    const updatedTraits = profile.traits.filter((_, i) => i !== traitId);
+
+    await supabase.from('binder_personality_profiles')
+      .update({ traits: updatedTraits, version: (profile.version || 1) + 1, updated_at: new Date().toISOString() })
+      .eq('user_id', ME);
+
+    $('bubbleCalibration').classList.add('hidden');
+    openProfileBubbles();
+    toast('התכונה נמחקה', 'success');
+  });
+
+  // Wire up "view profile" button from AI chat notifications
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('ai-notif-link') || e.target.id === 'viewProfileBtn') {
+      openProfileBubbles();
+    }
+  });
+
+  // ── Matching Pipeline ───────────────────────────────────
+  async function openMatchRequests() {
+    showView('match-requests');
+    const candidacies = await loadPendingCandidacies(ME);
+    const list = $('pendingRequestsList');
+    list.innerHTML = '';
+
+    if (candidacies.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:40px;font-size:0.88rem;">אין בקשות ממתינות כרגע</div>';
+      return;
+    }
+
+    candidacies.forEach(c => {
+      const card = renderCandidacyCard(c);
+      card.querySelector('.match-approve-btn').addEventListener('click', async () => {
+        const ok = await respondToCandidacy(c.id, 'approved');
+        if (ok) { card.remove(); toast('אישרת את הבקשה!', 'success'); loadSidebarRequests(); }
+      });
+      card.querySelector('.match-reject-btn').addEventListener('click', async () => {
+        const ok = await respondToCandidacy(c.id, 'rejected');
+        if (ok) { card.remove(); toast('דחית את הבקשה', 'default'); loadSidebarRequests(); }
+      });
+      card.querySelector('.match-askmore-btn').addEventListener('click', () => {
+        openAiChat();
+      });
+      list.appendChild(card);
+    });
+  }
+
+  async function openCandidateSelection(requestId) {
+    showView('candidate-select');
+    const candidates = await loadApprovedCandidates(requestId);
+    const list = $('approvedCandidatesList');
+    list.innerHTML = '';
+
+    if (candidates.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:40px;font-size:0.88rem;">ממתין למועמדים שיאשרו...</div>';
+      return;
+    }
+
+    const myProfile = await getUserProfile(ME);
+
+    for (const c of candidates) {
+      const card = document.createElement('div');
+      card.className = 'candidate-card';
+      const p = c.profile || {};
+      card.innerHTML = `
+        <div class="candidate-card-head">
+          <div class="candidate-card-av"><img src="${esc(p.avatar_url || avatarUrl(c.candidate_id))}" alt="${esc(p.full_name || '')}"></div>
+          <div>
+            <div class="candidate-card-name">${esc(p.full_name || 'מועמד/ת')}</div>
+            <div class="candidate-card-location">${p.location ? esc(p.location) : ''}${p.age ? ` · ${p.age}` : ''}</div>
+          </div>
+          <div class="candidate-card-score">${c.compatibility_score}%</div>
+        </div>
+        <p class="candidate-card-explanation">${esc(c.compatibility_explanation || '')}</p>
+        <div class="candidate-card-bubbles"></div>
+        <div class="candidate-card-action">
+          <button class="btn btn-primary btn-sm select-candidate-btn">בחר מועמד/ת</button>
+        </div>
+      `;
+
+      // Render comparison bubbles
+      if (c.personality?.traits && myProfile?.traits) {
+        const bubbleEl = card.querySelector('.candidate-card-bubbles');
+        renderComparison(bubbleEl, myProfile.traits, c.personality.traits, p.full_name);
+      }
+
+      card.querySelector('.select-candidate-btn').addEventListener('click', async () => {
+        const matchId = await selectCandidate(requestId, c.candidate_id, ME);
+        if (matchId) {
+          toast('נוצרה התאמה! 🎉', 'success');
+          await loadSidebarMatches();
+          openChat(matchId);
+        }
+      });
+
+      list.appendChild(card);
+    }
+  }
+
+  $('matchReqBackBtn').addEventListener('click', () => showView('welcome'));
+  $('candidateSelectBackBtn').addEventListener('click', () => showView('welcome'));
+
+  // ── Sidebar: active requests ────────────────────────────
+  async function loadSidebarRequests() {
+    const pendingCandidacies = await loadPendingCandidacies(ME);
+    const myRequests = await loadMyRequests(ME);
+
+    const requestsList = $('sbRequestsList');
+    const section = $('sbRequestsSection');
+    requestsList.innerHTML = '';
+
+    const hasItems = pendingCandidacies.length > 0 || myRequests.length > 0;
+    section.classList.toggle('hidden', !hasItems);
+
+    pendingCandidacies.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'sb-item';
+      btn.innerHTML = `
+        <div class="sb-item-av" style="background:var(--accent-surface);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:1.2rem;">🎯</span>
+        </div>
+        <div class="sb-item-body">
+          <div class="sb-item-name">בקשת עזרה</div>
+          <div class="sb-item-preview">${esc(c.binder_match_requests.description.slice(0, 40))}...</div>
+        </div>
+        <span class="sb-badge">חדש</span>
+      `;
+      btn.addEventListener('click', () => openMatchRequests());
+      requestsList.appendChild(btn);
+    });
+
+    for (const req of myRequests.filter(r => r.status === 'pending_approval' || r.status === 'ready')) {
+      const btn = document.createElement('button');
+      btn.className = 'sb-item';
+      const isReady = req.status === 'ready';
+      btn.innerHTML = `
+        <div class="sb-item-av" style="background:${isReady ? 'var(--accent-surface)' : 'var(--bg-elevated)'};display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:1.2rem;">${isReady ? '✨' : '🔍'}</span>
+        </div>
+        <div class="sb-item-body">
+          <div class="sb-item-name">${isReady ? 'נמצאו מועמדים!' : 'מחפש...'}</div>
+          <div class="sb-item-preview">${esc(req.description.slice(0, 40))}...</div>
+        </div>
+        ${isReady ? '<span class="sb-badge">בחר</span>' : ''}
+      `;
+      if (isReady) {
+        btn.addEventListener('click', () => openCandidateSelection(req.id));
+      }
+      requestsList.appendChild(btn);
+    }
+  }
+
+  // ── Sidebar toggle (mobile) ────────────────────────────
+  function openSidebar() {
+    $('sidebar').classList.add('open');
+    $('sbOverlay').classList.add('show');
+  }
+  function closeSidebar() {
+    $('sidebar').classList.remove('open');
+    $('sbOverlay').classList.remove('show');
+  }
+  $('hamburgerBtn').addEventListener('click', openSidebar);
+  $('sbOverlay').addEventListener('click', closeSidebar);
+
+  // ── Realtime: new matches → refresh sidebar ────────────
+  supabase.channel('app-matches')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'binder_matches' }, () => {
+      loadSidebarMatches();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'binder_messages' }, () => {
+      loadSidebarMatches();
+    })
+    .subscribe();
+
+  // ── Realtime: matching pipeline ─────────────────────────
+  subscribeToCandidacies(ME, () => {
+    loadSidebarRequests();
+    toast('יש בקשת עזרה חדשה!', 'default');
+  });
+
+  supabase.channel('my-requests')
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'binder_match_requests',
+      filter: `requester_id=eq.${ME}`,
+    }, (payload) => {
+      if (payload.new.status === 'ready' || payload.new.status === 'pending_approval') {
+        loadSidebarRequests();
+        if (payload.new.status === 'ready') {
+          toast('מועמדים אישרו! בוא לבחור', 'success');
+        }
+      }
+    })
+    .subscribe();
+
+  // ── Init ───────────────────────────────────────────────
+  await loadSidebarMatches();
+  await loadSidebarRequests();
   await loadCandidates();
-  })();
+
+  // Determine initial view from URL
+  const params = new URLSearchParams(location.search);
+  const urlMatchId = params.get('match');
+  const urlMode = params.get('mode');
+
+  if (urlMatchId && matches.find(m => m.id === urlMatchId)) {
+    openChat(urlMatchId);
+  } else if (urlMode === 'discover' || matches.length === 0) {
+    showView('discover');
+  } else {
+    showView('welcome');
+  }
+
+  // Handle browser back/forward
+  window.addEventListener('popstate', () => {
+    const p = new URLSearchParams(location.search);
+    const mId = p.get('match');
+    if (mId && matches.find(m => m.id === mId)) openChat(mId);
+    else if (p.get('mode') === 'discover') showView('discover');
+    else showView('welcome');
+  });
+})();
 </script>
 </body>
 </html>

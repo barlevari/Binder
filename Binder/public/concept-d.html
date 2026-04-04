@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>בינדר | קונספט D — Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       CONCEPT D — "Studio"
+       Wix-inspired: bold product hero · dark sections · neon
+       Syne (display) + DM Sans (body)
+       Deep navy · Lime + Violet · Geometric energy
+       ============================================================ */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    a{text-decoration:none;color:inherit}
+
+    :root{
+      --bg:#0A0A0F;
+      --bg-card:rgba(255,255,255,0.03);
+      --bg-card-hover:rgba(255,255,255,0.06);
+      --text:#F0F0F5;
+      --text-2:rgba(240,240,245,0.55);
+      --text-3:rgba(240,240,245,0.3);
+      --lime:#A3E635;
+      --lime-soft:rgba(163,230,53,0.10);
+      --lime-mid:rgba(163,230,53,0.25);
+      --violet:#8B5CF6;
+      --violet-soft:rgba(139,92,246,0.10);
+      --gradient:linear-gradient(135deg,var(--lime),var(--violet));
+      --border:rgba(255,255,255,0.06);
+      --border-glow:rgba(163,230,53,0.15);
+      --font-d:'Syne',sans-serif;
+      --font-b:'DM Sans',sans-serif;
+      --r:16px;
+      --ease:cubic-bezier(0.16,1,0.3,1);
+    }
+
+    html{scroll-behavior:smooth}
+    body{
+      font-family:var(--font-b);
+      background:var(--bg);color:var(--text);
+      line-height:1.7;overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* ── Custom cursor dot ──────────────────────────── */
+    .cursor-dot{
+      position:fixed;width:400px;height:400px;
+      border-radius:50%;pointer-events:none;z-index:0;
+      background:radial-gradient(circle,rgba(163,230,53,0.04) 0%,transparent 70%);
+      transform:translate(-50%,-50%);
+      transition:left 1s var(--ease),top 1s var(--ease);
+      will-change:left,top;
+    }
+
+    /* ── Navbar ─────────────────────────────────────── */
+    .nav{
+      position:fixed;top:0;right:0;left:0;z-index:100;
+      padding:18px 40px;
+      display:flex;align-items:center;justify-content:space-between;
+      transition:all 0.5s var(--ease);
+    }
+    .nav.scrolled{
+      background:rgba(10,10,15,0.9);
+      backdrop-filter:blur(20px) saturate(1.5);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-logo{
+      font-family:var(--font-d);font-size:1.5rem;font-weight:800;
+      letter-spacing:-0.03em;
+    }
+    .nav-logo .dot{
+      display:inline-block;width:8px;height:8px;
+      border-radius:50%;background:var(--lime);
+      margin-right:2px;vertical-align:middle;
+      animation:glow-pulse 3s ease-in-out infinite;
+    }
+    @keyframes glow-pulse{
+      0%,100%{box-shadow:0 0 4px var(--lime-mid)}
+      50%{box-shadow:0 0 16px var(--lime-mid)}
+    }
+    .nav-btns{display:flex;gap:10px;align-items:center}
+    .btn-g{
+      padding:10px 22px;border-radius:10px;font-size:0.85rem;
+      color:var(--text-2);font-weight:500;transition:all 0.3s;
+      font-family:var(--font-b);
+    }
+    .btn-g:hover{color:var(--text)}
+    .btn-lime{
+      padding:10px 24px;border-radius:10px;font-size:0.85rem;
+      background:var(--lime);color:var(--bg);font-weight:700;
+      border:none;cursor:pointer;transition:all 0.4s var(--ease);
+      font-family:var(--font-b);
+    }
+    .btn-lime:hover{
+      box-shadow:0 0 24px rgba(163,230,53,0.3),0 4px 16px rgba(163,230,53,0.2);
+      transform:translateY(-1px);
+    }
+
+    /* ── Hero ──────────────────────────────────────── */
+    .hero{
+      min-height:100vh;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      text-align:center;
+      padding:140px 24px 100px;
+      position:relative;overflow:hidden;
+    }
+
+    /* Grid background */
+    .hero::before{
+      content:'';position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(163,230,53,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(163,230,53,0.03) 1px, transparent 1px);
+      background-size:80px 80px;
+      mask-image:radial-gradient(ellipse 70% 50% at 50% 50%, black 20%, transparent 70%);
+      -webkit-mask-image:radial-gradient(ellipse 70% 50% at 50% 50%, black 20%, transparent 70%);
+    }
+
+    /* Geometric shapes */
+    .geo{position:absolute;border-radius:4px;pointer-events:none}
+    .geo-1{
+      width:120px;height:120px;
+      border:1px solid rgba(163,230,53,0.08);
+      top:15%;right:10%;
+      transform:rotate(45deg);
+      animation:geo-spin 40s linear infinite;
+    }
+    .geo-2{
+      width:80px;height:80px;
+      border:1px solid rgba(139,92,246,0.08);
+      bottom:20%;left:8%;
+      border-radius:50%;
+      animation:geo-spin 30s linear infinite reverse;
+    }
+    .geo-3{
+      width:60px;height:60px;
+      background:rgba(163,230,53,0.03);
+      top:40%;left:5%;
+      transform:rotate(20deg);
+      animation:geo-float 15s ease-in-out infinite;
+    }
+    @keyframes geo-spin{to{transform:rotate(405deg)}}
+    @keyframes geo-float{
+      0%,100%{transform:translateY(0) rotate(20deg)}
+      50%{transform:translateY(-30px) rotate(25deg)}
+    }
+
+    .hero-inner{position:relative;z-index:1;max-width:800px}
+
+    .hero-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 16px 6px 8px;border-radius:100px;
+      border:1px solid var(--border);
+      font-size:0.78rem;color:var(--text-2);font-weight:500;
+      margin-bottom:40px;
+      opacity:0;animation:fadeIn 0.6s var(--ease) 0.1s forwards;
+      backdrop-filter:blur(8px);
+    }
+    .hero-badge .badge-dot{
+      width:20px;height:20px;border-radius:50%;
+      background:var(--lime-soft);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .hero-badge .badge-dot::after{
+      content:'';width:6px;height:6px;border-radius:50%;
+      background:var(--lime);
+    }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    .hero h1{
+      font-family:var(--font-d);
+      font-size:clamp(3rem,9vw,6.5rem);
+      font-weight:800;line-height:1;
+      letter-spacing:-0.04em;
+    }
+    .hero h1 .line{
+      display:block;opacity:0;
+      animation:fadeIn 0.8s var(--ease) forwards;
+    }
+    .hero h1 .line:nth-child(1){animation-delay:0.2s}
+    .hero h1 .line:nth-child(2){animation-delay:0.4s}
+    .hero h1 .glow{
+      background:var(--gradient);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .hero-sub{
+      font-size:clamp(1rem,2vw,1.15rem);
+      color:var(--text-2);max-width:460px;
+      margin:28px auto 48px;font-weight:400;line-height:1.9;
+      opacity:0;animation:fadeIn 0.8s var(--ease) 0.6s forwards;
+    }
+
+    .hero-actions{
+      display:flex;gap:14px;justify-content:center;
+      flex-wrap:wrap;
+      opacity:0;animation:fadeIn 0.8s var(--ease) 0.8s forwards;
+    }
+    .btn-lime-lg{
+      padding:16px 44px;font-size:1.05rem;border-radius:12px;
+      background:var(--lime);color:var(--bg);font-weight:700;
+      border:none;cursor:pointer;font-family:var(--font-b);
+      transition:all 0.4s var(--ease);
+    }
+    .btn-lime-lg:hover{
+      box-shadow:0 0 32px rgba(163,230,53,0.3),0 8px 24px rgba(163,230,53,0.15);
+      transform:translateY(-2px);
+    }
+    .btn-outline-d{
+      padding:16px 36px;border-radius:12px;font-size:1.05rem;
+      border:1.5px solid var(--border);color:var(--text);
+      font-weight:500;transition:all 0.3s;
+      font-family:var(--font-b);
+    }
+    .btn-outline-d:hover{border-color:var(--lime-mid);color:var(--lime)}
+
+    /* ── Ticker strip ──────────────────────────────── */
+    .ticker{
+      padding:24px 0;
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      overflow:hidden;
+      position:relative;
+    }
+    .ticker-inner{
+      display:flex;gap:48px;
+      animation:tickerScroll 30s linear infinite;
+      width:max-content;
+    }
+    @keyframes tickerScroll{
+      0%{transform:translateX(0)}
+      100%{transform:translateX(-50%)}
+    }
+    .ticker-item{
+      font-family:var(--font-d);font-size:0.85rem;
+      font-weight:600;color:var(--text-3);
+      white-space:nowrap;display:flex;align-items:center;gap:12px;
+    }
+    .ticker-item::before{
+      content:'';width:6px;height:6px;border-radius:50%;
+      background:var(--lime);opacity:0.4;
+    }
+
+    /* ── Reveal ────────────────────────────────────── */
+    .reveal{opacity:0;transform:translateY(30px);transition:all 0.8s var(--ease)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .rd1{transition-delay:0.1s}.rd2{transition-delay:0.2s}
+    .rd3{transition-delay:0.3s}
+
+    /* ── Section ───────────────────────────────────── */
+    .section{padding:100px 24px;max-width:960px;margin:0 auto}
+    .s-head{text-align:center;margin-bottom:56px}
+    .s-tag{
+      font-family:var(--font-d);font-size:0.75rem;font-weight:700;
+      color:var(--lime);letter-spacing:0.12em;text-transform:uppercase;
+      margin-bottom:12px;
+    }
+    .s-title{
+      font-family:var(--font-d);
+      font-size:clamp(2rem,5vw,3.2rem);
+      font-weight:800;letter-spacing:-0.03em;
+      line-height:1.1;margin-bottom:16px;
+    }
+    .s-desc{font-size:1rem;color:var(--text-2);max-width:440px;margin:0 auto}
+
+    /* ── Steps — horizontal timeline ───────────────── */
+    .steps{
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:24px;position:relative;
+    }
+    @media(max-width:700px){.steps{grid-template-columns:1fr}}
+    /* Connection line */
+    .steps::before{
+      content:'';position:absolute;
+      top:36px;right:calc(16.66% + 12px);left:calc(16.66% + 12px);
+      height:1px;
+      background:linear-gradient(90deg,var(--lime),var(--violet));
+      opacity:0.2;
+    }
+    @media(max-width:700px){.steps::before{display:none}}
+
+    .step{
+      text-align:center;
+      padding:32px 20px;border-radius:var(--r);
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      transition:all 0.4s var(--ease);
+      position:relative;
+    }
+    .step:hover{
+      background:var(--bg-card-hover);
+      border-color:var(--border-glow);
+      box-shadow:0 0 40px rgba(163,230,53,0.04);
+    }
+    .step-num{
+      width:48px;height:48px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-d);font-size:1.1rem;font-weight:800;
+      margin:0 auto 20px;
+      background:var(--lime-soft);color:var(--lime);
+      transition:all 0.4s var(--ease);
+    }
+    .step:hover .step-num{
+      background:var(--lime);color:var(--bg);
+      box-shadow:0 0 20px rgba(163,230,53,0.2);
+    }
+    .step h3{
+      font-family:var(--font-d);font-size:1.05rem;font-weight:700;
+      margin:0 0 8px;
+    }
+    .step p{font-size:0.85rem;color:var(--text-2);line-height:1.7}
+
+    /* ── Bento grid features ───────────────────────── */
+    .bento{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      grid-template-rows:auto auto;
+      gap:16px;
+    }
+    @media(max-width:600px){.bento{grid-template-columns:1fr}}
+
+    .bento-card{
+      padding:36px 32px;border-radius:var(--r);
+      border:1px solid var(--border);
+      background:var(--bg-card);
+      transition:all 0.5s var(--ease);
+      position:relative;overflow:hidden;
+    }
+    .bento-card:hover{
+      border-color:var(--border-glow);
+      background:var(--bg-card-hover);
+    }
+    /* Glow on hover */
+    .bento-card::before{
+      content:'';position:absolute;
+      top:-50%;right:-50%;width:100%;height:100%;
+      border-radius:50%;
+      background:radial-gradient(circle,var(--lime-soft) 0%,transparent 70%);
+      opacity:0;transition:opacity 0.5s;pointer-events:none;
+    }
+    .bento-card:hover::before{opacity:1}
+
+    /* Wide card */
+    .bento-card.wide{grid-column:1/-1}
+
+    .bc-icon{
+      width:44px;height:44px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.2rem;margin-bottom:20px;
+      background:var(--lime-soft);
+      position:relative;z-index:1;
+    }
+    .bento-card:nth-child(2) .bc-icon{background:var(--violet-soft)}
+    .bento-card:nth-child(3) .bc-icon{background:rgba(255,255,255,0.04)}
+
+    .bento-card h3{
+      font-family:var(--font-d);font-size:1.1rem;font-weight:700;
+      margin:0 0 8px;position:relative;z-index:1;
+    }
+    .bento-card p{
+      font-size:0.88rem;color:var(--text-2);line-height:1.7;
+      position:relative;z-index:1;
+    }
+
+    /* ── Stats row ─────────────────────────────────── */
+    .stats-row{
+      display:flex;justify-content:center;gap:80px;
+      padding:80px 24px;flex-wrap:wrap;
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+    }
+    .stat{text-align:center}
+    .stat-num{
+      font-family:var(--font-d);font-size:3.5rem;font-weight:800;
+      letter-spacing:-0.03em;line-height:1;
+    }
+    .stat-num .glow{
+      background:var(--gradient);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .stat-label{font-size:0.8rem;color:var(--text-3);margin-top:8px}
+
+    /* ── CTA ───────────────────────────────────────── */
+    .cta{
+      padding:120px 24px;text-align:center;
+      position:relative;overflow:hidden;
+    }
+    .cta::before{
+      content:'';position:absolute;
+      top:50%;left:50%;transform:translate(-50%,-50%);
+      width:600px;height:300px;
+      background:radial-gradient(ellipse,rgba(163,230,53,0.06) 0%,transparent 60%);
+      pointer-events:none;
+    }
+    .cta h2{
+      font-family:var(--font-d);
+      font-size:clamp(2.5rem,7vw,4.5rem);
+      font-weight:800;letter-spacing:-0.03em;
+      line-height:1.05;margin-bottom:20px;
+      position:relative;z-index:1;
+    }
+    .cta h2 .glow{
+      background:var(--gradient);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .cta p{
+      font-size:1rem;color:var(--text-2);
+      margin-bottom:40px;position:relative;z-index:1;
+    }
+    .cta .btn-lime-lg{position:relative;z-index:1}
+
+    /* ── Footer ────────────────────────────────────── */
+    .footer{
+      padding:32px 40px;
+      display:flex;justify-content:space-between;align-items:center;
+      flex-wrap:wrap;gap:12px;
+      max-width:960px;margin:0 auto;
+      font-size:0.8rem;color:var(--text-3);
+      border-top:1px solid var(--border);
+    }
+    .footer a{color:var(--text-3);transition:color 0.3s}
+    .footer a:hover{color:var(--lime)}
+    .footer-brand{
+      font-family:var(--font-d);font-weight:800;font-size:1.1rem;
+      color:var(--text);
+    }
+
+    /* Badge */
+    .concept-label{
+      position:fixed;bottom:20px;right:20px;z-index:200;
+      background:var(--lime);color:var(--bg);
+      padding:10px 20px;border-radius:10px;
+      font-size:0.8rem;font-weight:700;
+      box-shadow:0 0 24px rgba(163,230,53,0.3);
+      font-family:var(--font-b);
+    }
+  </style>
+</head>
+<body>
+
+<div class="concept-label">Concept D — Studio</div>
+
+<!-- Cursor glow -->
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Geometric shapes -->
+<div class="geo geo-1"></div>
+<div class="geo geo-2"></div>
+<div class="geo geo-3"></div>
+
+<!-- Navbar -->
+<nav class="nav" id="nav">
+  <div class="nav-logo"><span class="dot"></span> בינדר</div>
+  <div class="nav-btns">
+    <a href="/auth.html" class="btn-g">כניסה</a>
+    <a href="/auth.html?tab=signup" class="btn-lime">התחל בחינם</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      פלטפורמת עזרה הדדית חכמה
+    </div>
+    <h1>
+      <span class="line">תאר מה אתה צריך.</span>
+      <span class="line"><span class="glow">נמצא לך.</span></span>
+    </h1>
+    <p class="hero-sub">
+      AI שמבין מה אתה מחפש, מוצא את האנשים הנכונים,
+      ומחבר ביניכם — בחינם, תוך דקות.
+    </p>
+    <div class="hero-actions">
+      <a href="/auth.html?tab=signup" class="btn-lime-lg">התחל עכשיו</a>
+      <a href="#how" class="btn-outline-d">איך זה עובד?</a>
+    </div>
+  </div>
+</section>
+
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">תכנות</span>
+    <span class="ticker-item">עיצוב</span>
+    <span class="ticker-item">שיווק</span>
+    <span class="ticker-item">מוזיקה</span>
+    <span class="ticker-item">בישול</span>
+    <span class="ticker-item">צילום</span>
+    <span class="ticker-item">כתיבה</span>
+    <span class="ticker-item">יזמות</span>
+    <span class="ticker-item">אימון אישי</span>
+    <span class="ticker-item">מתמטיקה</span>
+    <span class="ticker-item">גיטרה</span>
+    <span class="ticker-item">פיתוח אפליקציות</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="ticker-item">תכנות</span>
+    <span class="ticker-item">עיצוב</span>
+    <span class="ticker-item">שיווק</span>
+    <span class="ticker-item">מוזיקה</span>
+    <span class="ticker-item">בישול</span>
+    <span class="ticker-item">צילום</span>
+    <span class="ticker-item">כתיבה</span>
+    <span class="ticker-item">יזמות</span>
+    <span class="ticker-item">אימון אישי</span>
+    <span class="ticker-item">מתמטיקה</span>
+    <span class="ticker-item">גיטרה</span>
+    <span class="ticker-item">פיתוח אפליקציות</span>
+  </div>
+</div>
+
+<!-- How it works -->
+<section class="section" id="how">
+  <div class="s-head reveal">
+    <div class="s-tag">תהליך</div>
+    <div class="s-title">שלושה צעדים. זהו.</div>
+    <p class="s-desc">לא טפסים. לא סוייפים. שיחה פשוטה וחיבור אמיתי.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal rd1">
+      <div class="step-num">01</div>
+      <h3>תאר</h3>
+      <p>ספר ל-AI מה אתה מחפש — בשפה שלך, בלי טפסים</p>
+    </div>
+    <div class="step reveal rd2">
+      <div class="step-num">02</div>
+      <h3>מצא</h3>
+      <p>המערכת מנתחת ומוצאת את ההתאמה המדויקת</p>
+    </div>
+    <div class="step reveal rd3">
+      <div class="step-num">03</div>
+      <h3>התחבר</h3>
+      <p>שניכם מאשרים — ומתחילים לדבר</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features bento -->
+<section class="section">
+  <div class="s-head reveal">
+    <div class="s-tag">למה בינדר?</div>
+    <div class="s-title">לא עוד אפליקציית swipe</div>
+  </div>
+  <div class="bento">
+    <div class="bento-card reveal rd1">
+      <div class="bc-icon">🧠</div>
+      <h3>AI שמבין</h3>
+      <p>לא מילות מפתח. שיחה שמבינה מה אתה באמת צריך — ומוצאת בדיוק את מי שיכול לעזור.</p>
+    </div>
+    <div class="bento-card reveal rd2">
+      <div class="bc-icon">🎯</div>
+      <h3>התאמה מדויקת</h3>
+      <p>לא סוייפים אקראיים. המערכת בוחנת התאמה אמיתית בין אנשים לפני שהיא מציעה חיבור.</p>
+    </div>
+    <div class="bento-card wide reveal rd3">
+      <div class="bc-icon">🤝</div>
+      <h3>הסכמה הדדית</h3>
+      <p>שני הצדדים צריכים לאשר. בלי ספאם, בלי הודעות לא רצויות. רק חיבורים שעובדים.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat reveal rd1">
+    <div class="stat-num"><span class="glow">AI</span></div>
+    <div class="stat-label">התאמה חכמה</div>
+  </div>
+  <div class="stat reveal rd2">
+    <div class="stat-num">0₪</div>
+    <div class="stat-label">לתמיד</div>
+  </div>
+  <div class="stat reveal rd3">
+    <div class="stat-num">&lt;2<span style="font-size:0.5em">min</span></div>
+    <div class="stat-label">עד חיבור</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta reveal">
+  <h2>מוכן למצוא את<br>מי <span class="glow">שאתה צריך?</span></h2>
+  <p>הצטרף לקהילה. בחינם. לתמיד.</p>
+  <a href="/auth.html?tab=signup" class="btn-lime-lg">התחל עכשיו</a>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-brand"><span style="color:var(--lime)">●</span> בינדר</div>
+  <div>© 2026</div>
+  <div style="display:flex;gap:20px;">
+    <a href="#">פרטיות</a>
+    <a href="#">תנאי שימוש</a>
+  </div>
+</footer>
+
+<script>
+  // Cursor glow
+  const dot=document.getElementById('cursorDot');
+  document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px'});
+
+  // Navbar scroll
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>50));
+
+  // Reveal
+  const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
