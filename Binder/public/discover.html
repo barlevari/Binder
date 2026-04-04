@@ -355,7 +355,7 @@
       </button>
     </div>
 
-    <div class="sb-ai-chat-btn" id="sbAiChatBtn" onclick="openAiChat()" style="
+    <div class="sb-ai-chat-btn" id="sbAiChatBtn" style="
       margin:8px 12px;padding:12px 16px;border-radius:var(--r-md);
       background:linear-gradient(135deg,var(--accent),#c2553a);
       color:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;
@@ -1102,20 +1102,24 @@ import { loadPendingCandidacies, respondToCandidacy, loadMyRequests, loadApprove
   // ── AI Chat ─────────────────────────────────────────────
   async function openAiChat() {
     showView('ai-chat');
-    aiConversationId = await getActiveConversation();
+    try {
+      aiConversationId = await getActiveConversation();
 
-    aiChatMsgs.innerHTML = '';
-    lastAiDateSep = null;
+      aiChatMsgs.innerHTML = '';
+      lastAiDateSep = null;
 
-    if (aiConversationId) {
-      const history = await loadConversationHistory(aiConversationId);
-      history.forEach(msg => appendAiMessage(msg));
-      $('aiChips').classList.add('hidden');
-    } else {
-      $('aiChips').classList.remove('hidden');
+      if (aiConversationId) {
+        const history = await loadConversationHistory(aiConversationId);
+        history.forEach(msg => appendAiMessage(msg));
+        $('aiChips').classList.add('hidden');
+      } else {
+        $('aiChips').classList.remove('hidden');
+      }
+
+      scrollAiChatBottom();
+    } catch (err) {
+      console.error('openAiChat error:', err);
     }
-
-    scrollAiChatBottom();
   }
 
   function appendAiMessage(msg) {
@@ -1242,6 +1246,7 @@ import { loadPendingCandidacies, respondToCandidacy, loadMyRequests, loadApprove
   });
 
   $('welcomeAiChatBtn').addEventListener('click', () => openAiChat());
+  $('sbAiChatBtn').addEventListener('click', () => openAiChat());
 
   // ── Profile Bubbles ─────────────────────────────────────
   async function openProfileBubbles() {
