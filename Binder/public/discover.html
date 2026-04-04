@@ -355,6 +355,8 @@
       </button>
     </div>
 
+    <div class="sb-section hidden" id="sbRequestsSection">בקשות פעילות</div>
+    <div id="sbRequestsList"></div>
     <div class="sb-list" id="sbList">
       <div class="sb-empty" id="sbEmpty">
         <div class="sb-empty-icon">💬</div>
@@ -397,6 +399,11 @@
             <div class="welcome-card-icon">🔍</div>
             <div class="welcome-card-label">גלה אנשים</div>
             <div class="welcome-card-desc">מצא התאמות חדשות</div>
+          </div>
+          <div class="welcome-card" id="welcomeAiChatBtn">
+            <div class="welcome-card-icon">✦</div>
+            <div class="welcome-card-label">שוחח עם בינדר</div>
+            <div class="welcome-card-desc">מצא התאמות עם AI</div>
           </div>
           <div class="welcome-card" id="welcomeMatchesBtn">
             <div class="welcome-card-icon">💬</div>
@@ -444,6 +451,79 @@
           </form>
         </div>
       </div>
+
+      <!-- AI Chat View -->
+      <div class="chatview hidden" id="aiChatView">
+        <div class="cv-head">
+          <button class="cv-back" id="aiChatBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <div class="cv-av ai-av">
+            <div class="ai-avatar-icon">✦</div>
+          </div>
+          <span class="cv-name">בינדר AI</span>
+        </div>
+        <div class="cv-msgs" id="aiChatMsgs"></div>
+        <div class="cv-foot">
+          <!-- Suggestion chips (shown when chat is empty) -->
+          <div class="ai-chips" id="aiChips">
+            <button class="ai-chip" data-msg="מצא לי מנטור לתכנות">🎯 מצא לי מנטור</button>
+            <button class="ai-chip" data-msg="אני רוצה ללמד מישהו">🤝 אני רוצה ללמד</button>
+            <button class="ai-chip" data-msg="אני צריך עזרה ב...">💡 אני צריך עזרה</button>
+          </div>
+          <form class="cv-form" id="aiChatForm">
+            <textarea class="cv-ta" id="aiChatInput" placeholder="מה אתה מחפש היום?" rows="1" maxlength="2000"></textarea>
+            <button type="submit" class="cv-send" id="aiChatSendBtn" disabled>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Profile Bubbles View -->
+      <div class="hidden" id="profileBubblesView" style="flex:1;display:flex;flex-direction:column;padding:20px;animation:fadeUp 0.4s ease;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <button class="cv-back" id="bubblesBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <span style="font-size:1rem;font-weight:500;color:var(--text-1);">מפת האישיות שלי</span>
+        </div>
+        <div id="bubbleContainer" style="flex:1;min-height:300px;"></div>
+        <!-- Calibration panel (shown on trait click) -->
+        <div class="bubble-calibration hidden" id="bubbleCalibration">
+          <div class="bubble-cal-header">
+            <span class="bubble-cal-name" id="calTraitName"></span>
+            <button class="bubble-cal-close" id="calCloseBtn">✕</button>
+          </div>
+          <input type="range" class="bubble-cal-slider" id="calSlider" min="0" max="100" value="50">
+          <div class="bubble-cal-actions">
+            <button class="btn btn-ghost btn-sm" id="calDeleteBtn" style="color:var(--red);">מחק תכונה</button>
+            <button class="btn btn-primary btn-sm" id="calSaveBtn">שמור</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Match Request View (candidate sees this) -->
+      <div class="hidden" id="matchRequestView" style="flex:1;display:flex;flex-direction:column;padding:24px;animation:fadeUp 0.4s ease;overflow-y:auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <button class="cv-back" id="matchReqBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <span style="font-size:1rem;font-weight:500;color:var(--text-1);">בקשות ממתינות</span>
+        </div>
+        <div id="pendingRequestsList"></div>
+      </div>
+
+      <!-- Candidate Selection View (requester sees approved candidates) -->
+      <div class="hidden" id="candidateSelectView" style="flex:1;display:flex;flex-direction:column;padding:24px;animation:fadeUp 0.4s ease;overflow-y:auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <button class="cv-back" id="candidateSelectBackBtn" title="חזרה">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <span style="font-size:1rem;font-weight:500;color:var(--text-1);">מועמדים מתאימים</span>
+        </div>
+        <div id="approvedCandidatesList"></div>
+      </div>
     </div>
   </main>
 </div>
@@ -471,6 +551,9 @@
 <script type="module">
 import { supabase } from '/js/config.js';
 import { toast, esc, avatarUrl, formatTime, formatFullTime, formatDate, requireOnboarding } from '/js/utils.js';
+import { streamChatMessage, loadConversationHistory, getActiveConversation, getUserProfile, createTypingIndicator, createStreamingMessage } from '/js/ai-chat.js';
+import { renderBubbles, renderComparison } from '/js/personality-viz.js';
+import { loadPendingCandidacies, respondToCandidacy, loadMyRequests, loadApprovedCandidates, selectCandidate, renderCandidacyCard, subscribeToCandidacies } from '/js/matching.js';
 
 (async () => {
   // ── Auth ───────────────────────────────────────────────
@@ -483,12 +566,16 @@ import { toast, esc, avatarUrl, formatTime, formatFullTime, formatDate, requireO
   let matches = [];
   let cards = [];
   let current = 0;
-  let activeView = 'loading'; // loading | welcome | discover | chat
+  let activeView = 'loading'; // loading | welcome | discover | chat | ai-chat | profile-bubbles | match-requests | candidate-select
   let activeMatchId = null;
   let chatPartner = null;
   let chatSubscription = null;
   let lastDateSep = null;
   let pendingMatchId = null;
+  let aiConversationId = null;
+  let aiIsStreaming = false;
+  let lastAiDateSep = null;
+  let bubbleInstance = null;
 
   // ── DOM refs ───────────────────────────────────────────
   const $ = id => document.getElementById(id);
@@ -505,6 +592,10 @@ import { toast, esc, avatarUrl, formatTime, formatFullTime, formatDate, requireO
   const chatInput     = $('chatInput');
   const chatSendBtn   = $('chatSendBtn');
   const topTitle      = $('topTitle');
+  const aiChatViewEl  = $('aiChatView');
+  const aiChatMsgs    = $('aiChatMsgs');
+  const aiChatInput   = $('aiChatInput');
+  const aiChatSendBtn = $('aiChatSendBtn');
 
   // ── Load my profile ────────────────────────────────────
   const { data: myProf } = await supabase
@@ -526,11 +617,19 @@ import { toast, esc, avatarUrl, formatTime, formatFullTime, formatDate, requireO
     welcomeEl.classList.add('hidden');
     discoverEl.classList.add('hidden');
     chatViewEl.classList.add('hidden');
+    aiChatViewEl.classList.add('hidden');
+    $('profileBubblesView').classList.add('hidden');
+    $('matchRequestView').classList.add('hidden');
+    $('candidateSelectView').classList.add('hidden');
 
     if (view === 'loading') loadingEl.classList.remove('hidden');
     if (view === 'welcome') { welcomeEl.classList.remove('hidden'); topTitle.textContent = 'בינדר'; }
     if (view === 'discover') { discoverEl.classList.remove('hidden'); topTitle.textContent = 'גילוי'; }
     if (view === 'chat') { chatViewEl.classList.remove('hidden'); }
+    if (view === 'ai-chat') { aiChatViewEl.classList.remove('hidden'); topTitle.textContent = 'בינדר AI'; document.title = 'בינדר AI'; }
+    if (view === 'profile-bubbles') { $('profileBubblesView').classList.remove('hidden'); topTitle.textContent = 'מפת אישיות'; }
+    if (view === 'match-requests') { $('matchRequestView').classList.remove('hidden'); topTitle.textContent = 'בקשות ממתינות'; }
+    if (view === 'candidate-select') { $('candidateSelectView').classList.remove('hidden'); topTitle.textContent = 'מועמדים מתאימים'; }
 
     // Update sidebar active item
     document.querySelectorAll('.sb-item').forEach(el => {
@@ -990,6 +1089,353 @@ import { toast, esc, avatarUrl, formatTime, formatFullTime, formatDate, requireO
     }
   });
 
+  // ── AI Chat ─────────────────────────────────────────────
+  async function openAiChat() {
+    showView('ai-chat');
+    aiConversationId = await getActiveConversation();
+
+    aiChatMsgs.innerHTML = '';
+    lastAiDateSep = null;
+
+    if (aiConversationId) {
+      const history = await loadConversationHistory(aiConversationId);
+      history.forEach(msg => appendAiMessage(msg));
+      $('aiChips').classList.add('hidden');
+    } else {
+      $('aiChips').classList.remove('hidden');
+    }
+
+    scrollAiChatBottom();
+  }
+
+  function appendAiMessage(msg) {
+    const dateStr = formatDate(msg.created_at);
+    if (dateStr !== lastAiDateSep) {
+      lastAiDateSep = dateStr;
+      const sep = document.createElement('div');
+      sep.className = 'cv-date';
+      sep.innerHTML = `<span>${esc(dateStr)}</span>`;
+      aiChatMsgs.appendChild(sep);
+    }
+
+    const isUser = msg.role === 'user';
+    const div = document.createElement('div');
+    div.className = `cv-msg ${isUser ? 'out' : 'in'}`;
+    div.innerHTML = `
+      <div class="cv-bub${isUser ? '' : ' ai-bub'}">${esc(msg.content).replace(/\n/g, '<br>')}</div>
+      <div class="cv-time">${formatFullTime(msg.created_at)}</div>
+    `;
+    aiChatMsgs.appendChild(div);
+  }
+
+  async function sendAiMessage(text) {
+    if (!text || aiIsStreaming) return;
+
+    const content = text.trim();
+    if (!content) return;
+
+    aiIsStreaming = true;
+    aiChatInput.value = '';
+    aiChatSendBtn.disabled = true;
+    $('aiChips').classList.add('hidden');
+    adjustAiTextarea();
+
+    appendAiMessage({
+      role: 'user',
+      content,
+      created_at: new Date().toISOString(),
+    });
+    scrollAiChatBottom();
+
+    const typingEl = createTypingIndicator();
+    aiChatMsgs.appendChild(typingEl);
+    scrollAiChatBottom();
+
+    let streamMsg = null;
+
+    await streamChatMessage(content, aiConversationId, {
+      onText(text) {
+        if (!streamMsg) {
+          typingEl.remove();
+          streamMsg = createStreamingMessage();
+          aiChatMsgs.appendChild(streamMsg.element);
+        }
+        streamMsg.appendText(text);
+        scrollAiChatBottom();
+      },
+      onDone(event) {
+        if (streamMsg) {
+          streamMsg.finalize(new Date().toISOString());
+        } else {
+          typingEl.remove();
+        }
+        aiConversationId = event.conversation_id;
+        aiIsStreaming = false;
+        aiChatSendBtn.disabled = !aiChatInput.value.trim();
+      },
+      onProfileGenerated(event) {
+        const notif = document.createElement('div');
+        notif.className = 'ai-notification';
+        notif.innerHTML = `
+          <span class="ai-notif-icon">✨</span>
+          <span>יצרתי לך פרופיל אישיות! <button class="ai-notif-link" onclick="document.getElementById('viewProfileBtn')?.click()">לצפייה</button></span>
+        `;
+        aiChatMsgs.appendChild(notif);
+        scrollAiChatBottom();
+      },
+      onSearchStarted(event) {
+        const notif = document.createElement('div');
+        notif.className = 'ai-notification';
+        notif.innerHTML = `
+          <span class="ai-notif-icon">🔍</span>
+          <span>מחפש לך אנשים מתאימים...</span>
+        `;
+        aiChatMsgs.appendChild(notif);
+        scrollAiChatBottom();
+        loadSidebarRequests();
+      },
+      onError(message) {
+        typingEl.remove();
+        if (streamMsg) streamMsg.finalize(new Date().toISOString());
+        toast(message, 'error');
+        aiIsStreaming = false;
+        aiChatSendBtn.disabled = !aiChatInput.value.trim();
+      },
+    });
+  }
+
+  function scrollAiChatBottom() {
+    aiChatMsgs.scrollTop = aiChatMsgs.scrollHeight;
+  }
+
+  function adjustAiTextarea() {
+    aiChatInput.style.height = 'auto';
+    aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 120) + 'px';
+  }
+
+  $('aiChatForm').addEventListener('submit', (e) => { e.preventDefault(); sendAiMessage(aiChatInput.value); });
+  aiChatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAiMessage(aiChatInput.value); }
+  });
+  aiChatInput.addEventListener('input', () => {
+    aiChatSendBtn.disabled = !aiChatInput.value.trim() || aiIsStreaming;
+    adjustAiTextarea();
+  });
+
+  document.querySelectorAll('.ai-chip').forEach(chip => {
+    chip.addEventListener('click', () => { sendAiMessage(chip.dataset.msg); });
+  });
+
+  $('aiChatBackBtn').addEventListener('click', () => {
+    showView('welcome');
+    document.title = 'בינדר';
+  });
+
+  $('welcomeAiChatBtn').addEventListener('click', () => openAiChat());
+
+  // ── Profile Bubbles ─────────────────────────────────────
+  async function openProfileBubbles() {
+    showView('profile-bubbles');
+    const profile = await getUserProfile(ME);
+    if (profile && profile.traits) {
+      if (bubbleInstance) bubbleInstance.destroy();
+      bubbleInstance = renderBubbles($('bubbleContainer'), profile.traits, {
+        interactive: true,
+        onTraitClick(trait) {
+          $('calTraitName').textContent = trait.name;
+          $('calSlider').value = Math.round(trait.weight * 100);
+          $('bubbleCalibration').classList.remove('hidden');
+          $('bubbleCalibration').dataset.traitId = trait.id;
+        },
+      });
+    }
+  }
+
+  $('bubblesBackBtn').addEventListener('click', () => {
+    if (bubbleInstance) { bubbleInstance.destroy(); bubbleInstance = null; }
+    showView('ai-chat');
+  });
+
+  $('calCloseBtn').addEventListener('click', () => {
+    $('bubbleCalibration').classList.add('hidden');
+  });
+
+  $('calSaveBtn').addEventListener('click', async () => {
+    const traitId = parseInt($('bubbleCalibration').dataset.traitId);
+    const newWeight = parseInt($('calSlider').value) / 100;
+    const profile = await getUserProfile(ME);
+    if (!profile) return;
+
+    const updatedTraits = profile.traits.map((t, i) =>
+      i === traitId ? { ...t, weight: newWeight } : t
+    );
+
+    await supabase.from('binder_personality_profiles')
+      .update({ traits: updatedTraits, version: (profile.version || 1) + 1, updated_at: new Date().toISOString() })
+      .eq('user_id', ME);
+
+    $('bubbleCalibration').classList.add('hidden');
+    openProfileBubbles();
+    toast('התכונה עודכנה', 'success');
+  });
+
+  $('calDeleteBtn').addEventListener('click', async () => {
+    const traitId = parseInt($('bubbleCalibration').dataset.traitId);
+    const profile = await getUserProfile(ME);
+    if (!profile) return;
+
+    const updatedTraits = profile.traits.filter((_, i) => i !== traitId);
+
+    await supabase.from('binder_personality_profiles')
+      .update({ traits: updatedTraits, version: (profile.version || 1) + 1, updated_at: new Date().toISOString() })
+      .eq('user_id', ME);
+
+    $('bubbleCalibration').classList.add('hidden');
+    openProfileBubbles();
+    toast('התכונה נמחקה', 'success');
+  });
+
+  // Wire up "view profile" button from AI chat notifications
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('ai-notif-link') || e.target.id === 'viewProfileBtn') {
+      openProfileBubbles();
+    }
+  });
+
+  // ── Matching Pipeline ───────────────────────────────────
+  async function openMatchRequests() {
+    showView('match-requests');
+    const candidacies = await loadPendingCandidacies(ME);
+    const list = $('pendingRequestsList');
+    list.innerHTML = '';
+
+    if (candidacies.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:40px;font-size:0.88rem;">אין בקשות ממתינות כרגע</div>';
+      return;
+    }
+
+    candidacies.forEach(c => {
+      const card = renderCandidacyCard(c);
+      card.querySelector('.match-approve-btn').addEventListener('click', async () => {
+        const ok = await respondToCandidacy(c.id, 'approved');
+        if (ok) { card.remove(); toast('אישרת את הבקשה!', 'success'); loadSidebarRequests(); }
+      });
+      card.querySelector('.match-reject-btn').addEventListener('click', async () => {
+        const ok = await respondToCandidacy(c.id, 'rejected');
+        if (ok) { card.remove(); toast('דחית את הבקשה', 'default'); loadSidebarRequests(); }
+      });
+      card.querySelector('.match-askmore-btn').addEventListener('click', () => {
+        openAiChat();
+      });
+      list.appendChild(card);
+    });
+  }
+
+  async function openCandidateSelection(requestId) {
+    showView('candidate-select');
+    const candidates = await loadApprovedCandidates(requestId);
+    const list = $('approvedCandidatesList');
+    list.innerHTML = '';
+
+    if (candidates.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:40px;font-size:0.88rem;">ממתין למועמדים שיאשרו...</div>';
+      return;
+    }
+
+    const myProfile = await getUserProfile(ME);
+
+    for (const c of candidates) {
+      const card = document.createElement('div');
+      card.className = 'candidate-card';
+      const p = c.profile || {};
+      card.innerHTML = `
+        <div class="candidate-card-head">
+          <div class="candidate-card-av"><img src="${esc(p.avatar_url || avatarUrl(c.candidate_id))}" alt="${esc(p.full_name || '')}"></div>
+          <div>
+            <div class="candidate-card-name">${esc(p.full_name || 'מועמד/ת')}</div>
+            <div class="candidate-card-location">${p.location ? esc(p.location) : ''}${p.age ? ` · ${p.age}` : ''}</div>
+          </div>
+          <div class="candidate-card-score">${c.compatibility_score}%</div>
+        </div>
+        <p class="candidate-card-explanation">${esc(c.compatibility_explanation || '')}</p>
+        <div class="candidate-card-bubbles"></div>
+        <div class="candidate-card-action">
+          <button class="btn btn-primary btn-sm select-candidate-btn">בחר מועמד/ת</button>
+        </div>
+      `;
+
+      // Render comparison bubbles
+      if (c.personality?.traits && myProfile?.traits) {
+        const bubbleEl = card.querySelector('.candidate-card-bubbles');
+        renderComparison(bubbleEl, myProfile.traits, c.personality.traits, p.full_name);
+      }
+
+      card.querySelector('.select-candidate-btn').addEventListener('click', async () => {
+        const matchId = await selectCandidate(requestId, c.candidate_id, ME);
+        if (matchId) {
+          toast('נוצרה התאמה! 🎉', 'success');
+          await loadSidebarMatches();
+          openChat(matchId);
+        }
+      });
+
+      list.appendChild(card);
+    }
+  }
+
+  $('matchReqBackBtn').addEventListener('click', () => showView('welcome'));
+  $('candidateSelectBackBtn').addEventListener('click', () => showView('welcome'));
+
+  // ── Sidebar: active requests ────────────────────────────
+  async function loadSidebarRequests() {
+    const pendingCandidacies = await loadPendingCandidacies(ME);
+    const myRequests = await loadMyRequests(ME);
+
+    const requestsList = $('sbRequestsList');
+    const section = $('sbRequestsSection');
+    requestsList.innerHTML = '';
+
+    const hasItems = pendingCandidacies.length > 0 || myRequests.length > 0;
+    section.classList.toggle('hidden', !hasItems);
+
+    pendingCandidacies.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'sb-item';
+      btn.innerHTML = `
+        <div class="sb-item-av" style="background:var(--accent-surface);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:1.2rem;">🎯</span>
+        </div>
+        <div class="sb-item-body">
+          <div class="sb-item-name">בקשת עזרה</div>
+          <div class="sb-item-preview">${esc(c.binder_match_requests.description.slice(0, 40))}...</div>
+        </div>
+        <span class="sb-badge">חדש</span>
+      `;
+      btn.addEventListener('click', () => openMatchRequests());
+      requestsList.appendChild(btn);
+    });
+
+    for (const req of myRequests.filter(r => r.status === 'pending_approval' || r.status === 'ready')) {
+      const btn = document.createElement('button');
+      btn.className = 'sb-item';
+      const isReady = req.status === 'ready';
+      btn.innerHTML = `
+        <div class="sb-item-av" style="background:${isReady ? 'var(--accent-surface)' : 'var(--bg-elevated)'};display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:1.2rem;">${isReady ? '✨' : '🔍'}</span>
+        </div>
+        <div class="sb-item-body">
+          <div class="sb-item-name">${isReady ? 'נמצאו מועמדים!' : 'מחפש...'}</div>
+          <div class="sb-item-preview">${esc(req.description.slice(0, 40))}...</div>
+        </div>
+        ${isReady ? '<span class="sb-badge">בחר</span>' : ''}
+      `;
+      if (isReady) {
+        btn.addEventListener('click', () => openCandidateSelection(req.id));
+      }
+      requestsList.appendChild(btn);
+    }
+  }
+
   // ── Sidebar toggle (mobile) ────────────────────────────
   function openSidebar() {
     $('sidebar').classList.add('open');
@@ -1012,8 +1458,31 @@ import { toast, esc, avatarUrl, formatTime, formatFullTime, formatDate, requireO
     })
     .subscribe();
 
+  // ── Realtime: matching pipeline ─────────────────────────
+  subscribeToCandidacies(ME, () => {
+    loadSidebarRequests();
+    toast('יש בקשת עזרה חדשה!', 'default');
+  });
+
+  supabase.channel('my-requests')
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'binder_match_requests',
+      filter: `requester_id=eq.${ME}`,
+    }, (payload) => {
+      if (payload.new.status === 'ready' || payload.new.status === 'pending_approval') {
+        loadSidebarRequests();
+        if (payload.new.status === 'ready') {
+          toast('מועמדים אישרו! בוא לבחור', 'success');
+        }
+      }
+    })
+    .subscribe();
+
   // ── Init ───────────────────────────────────────────────
   await loadSidebarMatches();
+  await loadSidebarRequests();
   await loadCandidates();
 
   // Determine initial view from URL
